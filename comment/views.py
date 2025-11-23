@@ -19,7 +19,7 @@ from rest_framework.pagination import PageNumberPagination
 @permission_classes([AllowAnyForGetRequireAuthForWrite])
 def post_comments(request: Request, post_id):
     try:
-        post = Post.objects.get(isbn=post_id)
+        post = Post.objects.get(isbn=post_id, is_published=True)
     except Post.DoesNotExist:
         return Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -85,6 +85,8 @@ def post_comment_detail(request: Request, comment_id):
         serializer = CommentDetailSerializer(instance=comment, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     comment.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
