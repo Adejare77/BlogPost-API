@@ -24,7 +24,10 @@ class ReplySummarySerializer(serializers.ModelSerializer):
 
 
 class CommentDetailSerializer(serializers.ModelSerializer):
-    content = serializers.CharField(error_messages={"required": "content field is required"})
+    content = serializers.CharField(error_messages={
+        "required": "content field is required",
+        "blank": "content field cannot be empty"
+        })
     top_replies = ReplySummarySerializer(many=True, read_only=True)
     reply_count = serializers.IntegerField(read_only=True)
     like_count = serializers.IntegerField(read_only=True)
@@ -57,6 +60,10 @@ class ReplyListSerializer(serializers.ModelSerializer):
 
 class ReplyDetailSerializer(serializers.ModelSerializer):
     like_count = serializers.IntegerField(read_only=True)
+    content = serializers.CharField(error_messages={
+        'blank': 'content field cannot be empty',
+        'required': 'content field is required'
+    })
 
     class Meta:
         model = Comment
