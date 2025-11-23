@@ -21,15 +21,16 @@ class IsAdminUser(BasePermission):
 
 class IsAdminOrSelf(BasePermission):
     def has_object_permission(self, request, view, obj):
+        if hasattr(obj, 'author'):
+            # only owner or staff if the obj is not staff (Post and Comment)
+            if obj.author == request.user or (request.user.is_staff and not obj.author.is_staff):
+                return True
+
         # owner (both staff or clients)
         if hasattr(obj, 'id'):
             if obj == request.user or (request.user.is_staff and not obj.is_staff):
                 return True
 
-        if hasattr(obj, 'author'):
-            # only owner or staff if the obj is not staff
-            if obj.author == request.user or (request.user.is_staff and not obj.author.is_staff):
-                return True
 
         # staff try other staff or client try other
         raise PermissionDenied("You do not have permission to perform this action")
