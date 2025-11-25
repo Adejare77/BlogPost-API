@@ -143,7 +143,7 @@ def comment_reply_details(request: Request, reply_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     try:
-        reply = Comment.objects.get(parent__isnull=True, id=reply_id)
+        reply = Comment.objects.get(parent__isnull=False, id=reply_id)
     except Comment.DoesNotExist:
         return Response({"detail": "Reply not found"}, status=status.HTTP_404_NOT_FOUND)
 
