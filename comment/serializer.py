@@ -6,11 +6,11 @@ from typing import Dict
 class CommentListSerializer(serializers.ModelSerializer):
     excerpt = serializers.CharField(read_only=True)
     reply_count = serializers.IntegerField(read_only=True)
-    like_count = serializers.IntegerField(read_only=True)
+    # like_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'post', 'excerpt', 'reply_count', 'like_count', 'created_at']
+        fields = ['id', 'author', 'post', 'excerpt', 'reply_count', 'likes', 'created_at']
         read_only_fields = fields
 
 
@@ -30,11 +30,11 @@ class CommentDetailSerializer(serializers.ModelSerializer):
         })
     top_replies = ReplySummarySerializer(many=True, read_only=True)
     reply_count = serializers.IntegerField(read_only=True)
-    like_count = serializers.IntegerField(read_only=True)
+    # like_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'post', 'content', 'top_replies', 'reply_count', 'like_count', 'created_at']
+        fields = ['id', 'author', 'post', 'content', 'top_replies', 'reply_count', 'likes', 'created_at']
         read_only_fields = ['id', 'author', 'post', 'created_at']
 
     def create(self, validated_data):
@@ -50,7 +50,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 
 class ReplyListSerializer(serializers.ModelSerializer):
     excerpt = serializers.CharField(read_only=True)
-    likes = serializers.IntegerField(read_only=True, source='like_count')
+    # likes = serializers.IntegerField(read_only=True, source='like_count')
 
     class Meta:
         model = Comment
@@ -59,7 +59,7 @@ class ReplyListSerializer(serializers.ModelSerializer):
 
 
 class ReplyDetailSerializer(serializers.ModelSerializer):
-    like_count = serializers.IntegerField(read_only=True)
+    # like_count = serializers.IntegerField(read_only=True)
     content = serializers.CharField(error_messages={
         'blank': 'content field cannot be empty',
         'required': 'content field is required'
@@ -67,7 +67,7 @@ class ReplyDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'content', 'parent', 'like_count', 'created_at']
+        fields = ['id', 'author', 'content', 'parent', 'likes', 'created_at']
         read_only_fields = ['id', 'author', 'parent', 'created_at']
 
     def create(self, validated_data: Dict[str, str]):
