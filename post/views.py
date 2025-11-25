@@ -12,8 +12,11 @@ from django.db.models import Count
 from django.db.models import Value, Prefetch
 from django.db.models.functions import Substr, Concat
 from comment.models import Comment
+from drf_spectacular.utils import extend_schema
 
 
+
+@extend_schema(operation_id="ListPosts")
 @api_view(['POST', 'GET'])
 @permission_classes([AllowAnyForGetRequireAuthForWrite])
 def post_list(request: Request):
@@ -50,6 +53,7 @@ def post_list(request: Request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(operation_id="RetrievePost")
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([AllowAnyForGetRequireAuthForWrite])
 def post_detail(request: Request, post_id):
