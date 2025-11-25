@@ -106,7 +106,7 @@ class PostModelValidationTests(TestCase):
         post = Post.objects.create(**data)
         self.assertFalse(post.is_published)
 
-    def test_true__in_is_published(self):
+    def test_true_in_is_published(self):
         """ test missing is_published validation """
         data = {
             'title': 'Linear Curve',
