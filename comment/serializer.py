@@ -6,7 +6,7 @@ from typing import Dict
 class CommentListSerializer(serializers.ModelSerializer):
     excerpt = serializers.CharField(read_only=True)
     reply_count = serializers.IntegerField(read_only=True)
-    # like_count = serializers.IntegerField(read_only=True)
+    likes = serializers.IntegerField(read_only=True, source='like_count')
 
     class Meta:
         model = Comment
@@ -30,7 +30,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
         })
     top_replies = ReplySummarySerializer(many=True, read_only=True)
     reply_count = serializers.IntegerField(read_only=True)
-    # like_count = serializers.IntegerField(read_only=True)
+    likes = serializers.IntegerField(read_only=True, source="like_count")
 
     class Meta:
         model = Comment
@@ -50,7 +50,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 
 class ReplyListSerializer(serializers.ModelSerializer):
     excerpt = serializers.CharField(read_only=True)
-    # likes = serializers.IntegerField(read_only=True, source='like_count')
+    likes = serializers.IntegerField(read_only=True, source='like_count')
 
     class Meta:
         model = Comment
@@ -59,7 +59,7 @@ class ReplyListSerializer(serializers.ModelSerializer):
 
 
 class ReplyDetailSerializer(serializers.ModelSerializer):
-    # like_count = serializers.IntegerField(read_only=True)
+    likes = serializers.IntegerField(read_only=True, source='like_count')
     content = serializers.CharField(error_messages={
         'blank': 'content field cannot be empty',
         'required': 'content field is required'
