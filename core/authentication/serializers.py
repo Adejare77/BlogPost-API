@@ -60,10 +60,10 @@ class RegisterSerializer(serializers.Serializer):
             )
 
         except IntegrityError as e:
-            raise serializers.ValidationError({"error": "This email is already registered"})
+            raise serializers.ValidationError({"detail": "This email is already registered"})
 
         except DjangoValidationError as e:
-            raise serializers.ValidationError({'error': e.message_dict})
+            raise serializers.ValidationError({'detail': e.message_dict})
 
         return user
 
@@ -79,7 +79,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "blank": "email cannot be empty",
                 "required": "email field is required",
                 "invalid": "invalid email address"
-            })
+            }
+        )
 
         self.fields['password'] = serializers.CharField(
             write_only=True,
@@ -87,7 +88,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "blank": "password cannot be empty",
                 "required": "password field is required",
             }
-            )
+        )
 
     def validate(self, attrs):
         password = attrs.get('password')
@@ -101,7 +102,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             password=password
             )
         if not user:
-            raise AuthenticationFailed({'error': 'Invalid email or password'})
+            raise AuthenticationFailed({'detail': 'Invalid email or password'})
 
         # create token
         refresh = self.get_token(user)

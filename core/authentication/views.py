@@ -14,26 +14,26 @@ from core.authentication.serializers import CustomTokenObtainPairSerializer
 class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-# Create your views here.
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def login_view(request: Request):
-    serializer = LoginSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+# # Create your views here.
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def login_view(request: Request):
+#     serializer = LoginSerializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
 
-    user = authenticate(
-        email=serializer.validated_data['email'],
-        password=serializer.validated_data['password']
-        )
-    if not user:
-        return Response(
-            {'error': 'Invalid Credentials'},
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+#     user = authenticate(
+#         email=serializer.validated_data['email'],
+#         password=serializer.validated_data['password']
+#         )
+#     if not user:
+#         return Response(
+#             {'detail': 'Invalid credentials'},
+#             status=status.HTTP_401_UNAUTHORIZED
+#         )
 
-    # cache user's session into redis
-    login(request, user)
-    return Response({"message": "login Successful"}, status=status.HTTP_200_OK)
+#     # cache user's session into redis
+#     login(request, user)
+#     return Response({"message": "login Successful"}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
