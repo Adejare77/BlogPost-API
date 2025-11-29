@@ -110,7 +110,7 @@ def comment_replies(request: Request, comment_id):
         page = paginator.paginate_queryset(request=request, queryset=queryset)
 
         serializer = ReplyListSerializer(instance=page, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
     # ensures replies are only to comment not replies
     try:
