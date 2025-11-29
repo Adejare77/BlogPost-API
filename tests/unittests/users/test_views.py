@@ -36,7 +36,7 @@ class UserViewTests(APITestCase):
 
     def test_user_can_get_own_profile(self):
         """ get user's profile """
-        url = reverse('user_profile', kwargs={'user_id': self.user1.id})
+        url = reverse('user-profile', kwargs={'user_id': self.user1.id})
         request = self.factory.get(url)  # gets the request of this url
         force_authenticate(request=request, user=self.user1) # authenticate and attach user
         resp = views.get_user_by_id(request, user_id=self.user1.id)
@@ -45,7 +45,7 @@ class UserViewTests(APITestCase):
 
 
     def test_user_cannot_get_other_user_profile(self):
-        url = reverse('user_profile', kwargs={'user_id': self.user1.id})
+        url = reverse('user-profile', kwargs={'user_id': self.user1.id})
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.user1)
         response = views.get_user_by_id(request, user_id=self.user2.id)
@@ -54,7 +54,7 @@ class UserViewTests(APITestCase):
 
 
     def test_admin_can_get_regular_users_profile(self):
-        url = reverse('user_profile', kwargs={'user_id': self.admin1.id})
+        url = reverse('user-profile', kwargs={'user_id': self.admin1.id})
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.admin1)
 
@@ -66,7 +66,7 @@ class UserViewTests(APITestCase):
 
 
     def test_admin_can_get_own_profile(self):
-        url = reverse('user_profile', kwargs={'user_id': self.admin1.id})
+        url = reverse('user-profile', kwargs={'user_id': self.admin1.id})
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.admin1)
 
@@ -75,7 +75,7 @@ class UserViewTests(APITestCase):
 
 
     def test_admin_cannot_get_other_admin_profile(self):
-        url = reverse('user_profile', kwargs={'user_id': self.admin1.id})
+        url = reverse('user-profile', kwargs={'user_id': self.admin1.id})
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.admin1)
         response = views.get_user_by_id(request, user_id=self.admin2.id)
@@ -85,7 +85,7 @@ class UserViewTests(APITestCase):
 
 
     def test_user_cannot_disable_any_account(self):
-        url = reverse('disable_account', kwargs={'user_id': self.user1.id})
+        url = reverse('disable-account', kwargs={'user_id': self.user1.id})
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.user1)
 
@@ -103,7 +103,7 @@ class UserViewTests(APITestCase):
 
 
     def test_admin_can_disable_user_account(self):
-        url = reverse('disable_account', kwargs={'user_id': self.user1.id})
+        url = reverse('disable-account', kwargs={'user_id': self.user1.id})
         request = self.factory.post(url)
         force_authenticate(request=request, user=self.admin1)
 
@@ -112,7 +112,7 @@ class UserViewTests(APITestCase):
 
 
     def test_admin_cannot_disable_other_admin_account(self):
-        url = reverse('disable_account', kwargs={'user_id': self.admin1.id})
+        url = reverse('disable-account', kwargs={'user_id': self.admin1.id})
         request = self.factory.post(url)
         force_authenticate(request=request, user=self.admin1)
         response = views.disable_user_account(request, user_id=self.admin2.id)
@@ -120,7 +120,7 @@ class UserViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_user_cannot_enable_any_account(self):
-        url = reverse('enable_account', kwargs={'user_id': self.user1.id})
+        url = reverse('enable-account', kwargs={'user_id': self.user1.id})
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.user1)
 
@@ -135,7 +135,7 @@ class UserViewTests(APITestCase):
 
 
     def test_admin_can_enable_user_account(self):
-        url = reverse('enable_account', kwargs={'user_id': self.user1.id})
+        url = reverse('enable-account', kwargs={'user_id': self.user1.id})
         request = self.factory.post(url)
         force_authenticate(request=request, user=self.admin1)
         response = views.enable_user_account(request, user_id=self.user1.id)
@@ -143,7 +143,7 @@ class UserViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_admin_cannot_enable_admin_account(self):
-        url = reverse('enable_account', kwargs={'user_id': self.admin1.id})
+        url = reverse('enable-account', kwargs={'user_id': self.admin1.id})
         request = self.factory.post(url)
         force_authenticate(request=request, user=self.admin1)
         resp = views.enable_user_account(request, user_id=self.admin2.id)
