@@ -5,16 +5,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('like', '0001_initial'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("like", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='like',
-            constraint=models.UniqueConstraint(fields=('user', 'content_type', 'object_id'), name='like_per_post_or_comment_per_user'),
+            model_name="like",
+            constraint=models.UniqueConstraint(
+                fields=("user", "content_type", "object_id"),
+                name="like_per_post_or_comment_per_user",
+            ),
         ),
     ]
