@@ -26,7 +26,7 @@ jobs:
     env:
       DATABASE_URL: postgres://ci_user:ci_password@localhost:5432/test_db
       TESTING: "false"
-      SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
       - name: Checkout repo
