@@ -1,21 +1,20 @@
-from rest_framework.test import APITestCase
-from post.models import Post
-from post.serializer import PostListSerializer, PostDetailSerializer
 from django.contrib.auth import get_user_model
+from rest_framework.test import APITestCase
+
+from post.models import Post
+from post.serializer import PostDetailSerializer, PostListSerializer
 
 
 class TestPostListSerializer(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABCD',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABCD", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             author=self.user,
-            content='This is my post on my Country',
-            title='The Politics',
-            is_published=True
+            content="This is my post on my Country",
+            title="The Politics",
+            is_published=True,
         )
 
     def test_serializer_uses_attached_attributes(self):
@@ -27,23 +26,30 @@ class TestPostListSerializer(APITestCase):
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'isbn', 'title', 'excerpt', 'author', 'likes', 'comment_count', 'is_published', 'created_at'}
+            {
+                "isbn",
+                "title",
+                "excerpt",
+                "author",
+                "likes",
+                "comment_count",
+                "is_published",
+                "created_at",
+            },
         )
-        self.assertEqual(ser.data['likes'], 33)
+        self.assertEqual(ser.data["likes"], 33)
 
 
 class TestPostDetailSerializer(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABCD',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABCD", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             author=self.user,
-            content='This is my post on my Country',
-            title='The Politics',
-            is_published=True
+            content="This is my post on my Country",
+            title="The Politics",
+            is_published=True,
         )
 
     def test_serializer_uses_attached_attributes(self):
@@ -55,13 +61,23 @@ class TestPostDetailSerializer(APITestCase):
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'isbn', 'author', 'title', 'content', 'is_published', 'likes', 'comment_count', 'top_comments', 'created_at'}
+            {
+                "isbn",
+                "author",
+                "title",
+                "content",
+                "is_published",
+                "likes",
+                "comment_count",
+                "top_comments",
+                "created_at",
+            },
         )
-        self.assertEqual(ser.data['likes'], 100)
-        self.assertEqual(ser.data['comment_count'], 0)
+        self.assertEqual(ser.data["likes"], 100)
+        self.assertEqual(ser.data["comment_count"], 0)
 
     def test_partial_update_with_empty_content_rejected(self):
-        data = {'contet': ''}
+        data = {"contet": ""}
         ser = PostDetailSerializer(instance=self.post, data=data)
 
         self.assertFalse(ser.is_valid())
@@ -72,12 +88,12 @@ class TestPostDetailSerializer(APITestCase):
         ser = PostDetailSerializer(instance=self.post, data=data, partial=True)
 
         self.assertTrue(ser.is_valid())
-        self.assertEqual(ser.data['content'], self.post.content)
+        self.assertEqual(ser.data["content"], self.post.content)
 
     def test_serializer_skips_read_attributes(self):
         ser = PostDetailSerializer(instance=self.post)
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'isbn', 'author', 'title', 'content', 'is_published', 'created_at'}
+            {"isbn", "author", "title", "content", "is_published", "created_at"},
         )

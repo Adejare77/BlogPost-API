@@ -1,29 +1,28 @@
-from rest_framework.test import APITestCase
-from comment.models import Comment
 from django.contrib.auth import get_user_model
-from post.models import Post
+from rest_framework.test import APITestCase
+
+from comment.models import Comment
 from comment.serializer import (
-    CommentListSerializer, CommentDetailSerializer,
-    ReplyListSerializer, ReplyDetailSerializer
+    CommentDetailSerializer,
+    CommentListSerializer,
+    ReplyDetailSerializer,
+    ReplyListSerializer,
 )
+from post.models import Post
 
 
 class TestCommentListSerializer(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABC',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABC", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             title="This is a Post",
-            content='This is a content to the given title',
-            author=self.user
+            content="This is a content to the given title",
+            author=self.user,
         )
         self.comment = Comment.objects.create(
-            post = self.post,
-            content = 'This is a Paragraph page',
-            author = self.user
+            post=self.post, content="This is a Paragraph page", author=self.user
         )
 
     def test_serializer_uses_attached_attributes(self):
@@ -34,7 +33,7 @@ class TestCommentListSerializer(APITestCase):
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'id', 'author', 'post', 'excerpt', 'reply_count', 'likes', 'created_at'}
+            {"id", "author", "post", "excerpt", "reply_count", "likes", "created_at"},
         )
 
         self.assertIsNone(ser.instance.parent)
@@ -43,29 +42,24 @@ class TestCommentListSerializer(APITestCase):
 class TestCommentDetailSerializer(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABC',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABC", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             title="This is a Post",
-            content='This is a content to the given title',
-            author=self.user
+            content="This is a content to the given title",
+            author=self.user,
         )
         self.comment = Comment.objects.create(
-            post = self.post,
-            content = 'This is a Paragraph page',
-            author = self.user
+            post=self.post, content="This is a Paragraph page", author=self.user
         )
 
     def test_partial_update_with_empty_content_rejected(self):
-        data = {'content': ''}
+        data = {"content": ""}
 
         ser = CommentDetailSerializer(data=data)
 
         self.assertFalse(ser.is_valid())
-        self.assertIn('content field cannot be empty', ser.errors['content'][0])
-
+        self.assertIn("content field cannot be empty", ser.errors["content"][0])
 
     def test_partial_update_missing_content_allowed(self):
         data = {}
@@ -73,8 +67,7 @@ class TestCommentDetailSerializer(APITestCase):
         ser = CommentDetailSerializer(data=data, instance=self.comment, partial=True)
 
         self.assertTrue(ser.is_valid())
-        self.assertEqual(ser.data['content'], self.comment.content)
-
+        self.assertEqual(ser.data["content"], self.comment.content)
 
     def test_serializer_uses_attached_attributes(self):
         self.comment.top_replies = []
@@ -85,7 +78,16 @@ class TestCommentDetailSerializer(APITestCase):
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'id', 'author', 'post', 'content', 'top_replies', 'reply_count', 'likes', 'created_at'}
+            {
+                "id",
+                "author",
+                "post",
+                "content",
+                "top_replies",
+                "reply_count",
+                "likes",
+                "created_at",
+            },
         )
 
     def test_serializer_skips_read_attributes(self):
@@ -93,43 +95,39 @@ class TestCommentDetailSerializer(APITestCase):
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'id', 'author', 'post', 'likes', 'content', 'created_at'}
+            {"id", "author", "post", "likes", "content", "created_at"},
         )
 
     def test_serializer_creates_comment(self):
-        data = {'content': 'This is the Second Comment'}
+        data = {"content": "This is the Second Comment"}
         ser = CommentDetailSerializer(data=data)
 
         self.assertTrue(ser.is_valid())
         ser.save(post=self.post, author=self.user)
 
-        self.assertEqual(ser.data['content'], data['content'])
-        self.assertEqual(ser.data['author'], self.user.id)
-        self.assertEqual(ser.data['post'], self.post.isbn)
+        self.assertEqual(ser.data["content"], data["content"])
+        self.assertEqual(ser.data["author"], self.user.id)
+        self.assertEqual(ser.data["post"], self.post.isbn)
 
 
 class TestReplyListSerializer(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABC',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABC", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             title="This is a Post",
-            content='This is a content to the given title',
-            author=self.user
+            content="This is a content to the given title",
+            author=self.user,
         )
         self.comment = Comment.objects.create(
-            post = self.post,
-            content = 'This is a Paragraph page',
-            author = self.user
+            post=self.post, content="This is a Paragraph page", author=self.user
         )
         self.reply = Comment.objects.create(
             post=self.post,
-            content='I couldn\'t agree more with this comment',
+            content="I couldn't agree more with this comment",
             author=self.user,
-            parent=self.comment
+            parent=self.comment,
         )
 
     def test_serializer_uses_attached_attributes(self):
@@ -138,8 +136,7 @@ class TestReplyListSerializer(APITestCase):
         ser = ReplyListSerializer(instance=self.reply)
 
         self.assertSetEqual(
-            set(ser.data.keys()),
-            {'id', 'author', 'excerpt', 'likes', 'created_at'}
+            set(ser.data.keys()), {"id", "author", "excerpt", "likes", "created_at"}
         )
 
         self.assertIsNotNone(ser.instance.parent)
@@ -148,25 +145,21 @@ class TestReplyListSerializer(APITestCase):
 class TestReplyDetailSerializer(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABC',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABC", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             title="This is a Post",
-            content='This is a content to the given title',
-            author=self.user
+            content="This is a content to the given title",
+            author=self.user,
         )
         self.comment = Comment.objects.create(
-            post = self.post,
-            content = 'This is a Paragraph page',
-            author = self.user
+            post=self.post, content="This is a Paragraph page", author=self.user
         )
         self.reply = Comment.objects.create(
-            post = self.post,
-            content = 'This is a reply to a comment',
+            post=self.post,
+            content="This is a reply to a comment",
             author=self.user,
-            parent=self.comment
+            parent=self.comment,
         )
 
     def test_serializer_uses_all_attributes(self):
@@ -174,18 +167,17 @@ class TestReplyDetailSerializer(APITestCase):
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'id', 'author', 'content', 'parent', 'likes', 'created_at'}
+            {"id", "author", "content", "parent", "likes", "created_at"},
         )
 
     def test_partial_update_with_empty_content_rejected(self):
-        data = {'content': ''}
+        data = {"content": ""}
 
         ser = ReplyDetailSerializer(data=data)
         ser = ReplyDetailSerializer(instance=self.reply, data=data)
 
         self.assertFalse(ser.is_valid())
-        self.assertIn('content field cannot be empty', ser.errors['content'][0])
-
+        self.assertIn("content field cannot be empty", ser.errors["content"][0])
 
     def test_partial_update_missing_content_allowed(self):
         data = {}
@@ -193,25 +185,24 @@ class TestReplyDetailSerializer(APITestCase):
         ser = ReplyDetailSerializer(data=data, instance=self.reply, partial=True)
 
         self.assertTrue(ser.is_valid())
-        self.assertEqual(ser.data['content'], self.reply.content)
-
+        self.assertEqual(ser.data["content"], self.reply.content)
 
     def test_serializer_skips_read_attributes(self):
         ser = ReplyDetailSerializer(instance=self.comment)
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {'id', 'author', 'content', 'parent', 'likes', 'created_at'}
+            {"id", "author", "content", "parent", "likes", "created_at"},
         )
 
     def test_serializer_creates_reply_to_comment(self):
-        data = {'content': 'This is another reply'}
+        data = {"content": "This is another reply"}
         ser = ReplyDetailSerializer(data=data)
 
         self.assertTrue(ser.is_valid())
         ser.save(post=self.post, author=self.user, parent=self.comment)
 
-        self.assertEqual(ser.data['content'], data['content'])
-        self.assertEqual(ser.data['author'], self.user.id)
+        self.assertEqual(ser.data["content"], data["content"])
+        self.assertEqual(ser.data["author"], self.user.id)
         self.assertEqual(ser.instance.post, self.post)
-        self.assertIsNotNone(ser.data['parent'])
+        self.assertIsNotNone(ser.data["parent"])

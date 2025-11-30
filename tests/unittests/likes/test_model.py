@@ -1,35 +1,32 @@
-from django.test import TestCase
-from like.models import Like
 from django.contrib.auth import get_user_model
-from post.models import Post
-from comment.models import Comment
 from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase
+
+from comment.models import Comment
+from like.models import Like
+from post.models import Post
 
 
 class TestLikeModel(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABCD',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABCD", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             author=self.user,
-            content='This is an introduction to the first part of our lesson',
-            title='Introduction',
+            content="This is an introduction to the first part of our lesson",
+            title="Introduction",
         )
         self.comment = Comment.objects.create(
-            author=self.user,
-            content='Nice exactly a nice write-up',
-            post=self.post
+            author=self.user, content="Nice exactly a nice write-up", post=self.post
         )
 
     def test_create_a_post_like(self):
-        """ test liking a post """
+        """Test liking a post"""
         Like.objects.create(
             user=self.user,
             content_type=ContentType.objects.get_for_model(Post),
-            object_id=self.post.isbn
+            object_id=self.post.isbn,
         )
 
         self.post.refresh_from_db()
@@ -37,17 +34,16 @@ class TestLikeModel(TestCase):
         self.assertEqual(self.post.likes.count(), 1)
 
     def test_create_a_comment_like(self):
-        """ test liking a comment """
+        """Test liking a comment"""
         Like.objects.create(
             user=self.user,
             content_type=ContentType.objects.get_for_model(Comment),
-            object_id=self.comment.id
+            object_id=self.comment.id,
         )
 
         self.comment.refresh_from_db()
 
         self.assertEqual(self.comment.likes.count(), 1)
-
 
     # def test_delete_a_liked_post(self):
     #     """ test deleting a liked post """
@@ -63,5 +59,3 @@ class TestLikeModel(TestCase):
     # def test_delete_a_liked_comment(self):
     #     """ test deleting a liked comment """
     #     pass
-
-

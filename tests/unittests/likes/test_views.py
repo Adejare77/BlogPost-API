@@ -1,44 +1,44 @@
-from django.urls import reverse
-from rest_framework.test import APITestCase, APIRequestFactory, force_authenticate
-from like import views
-from like.models import Like
-from post.models import Post
-from comment.models import Comment
-from rest_framework import status
 from django.contrib.auth import get_user_model
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
+
+from comment.models import Comment
+from like import views
+from post.models import Post
 
 
 class TestLikePostView(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABC',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABC", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             author=self.user,
-            content='This is a sample content',
-            title='Introduction to Mathematics',
+            content="This is a sample content",
+            title="Introduction to Mathematics",
         )
 
         self.factory = APIRequestFactory()
 
     def test_like_post_without_auth(self):
-        """ test liking a post without authentication """
-        url = reverse('like-post', args=[self.post.isbn])
+        """Test liking a post without authentication"""
+        url = reverse("like-post", args=[self.post.isbn])
         request = self.factory.post(path=url)
 
         response = views.like_post(request, self.post.isbn)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data['detail'], 'Authentication credentials were not provided')
+        self.assertEqual(
+            response.data["detail"], "Authentication credentials were not provided"
+        )
 
         self.post.refresh_from_db()
         self.assertEqual(self.post.likes.count(), 0)
 
     def test_like_post_with_auth(self):
-        """ test liking a post with authentication """
-        url = reverse('like-post', args=[self.post.isbn])
+        """Test liking a post with authentication"""
+        url = reverse("like-post", args=[self.post.isbn])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
@@ -51,8 +51,8 @@ class TestLikePostView(APITestCase):
         self.assertEqual(like_count, 1)
 
     def test_user_cannot_like_more_than_once(self):
-        """ test liking more than once """
-        url = reverse('like-post', args=[self.post.isbn])
+        """Test liking more than once"""
+        url = reverse("like-post", args=[self.post.isbn])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
@@ -62,28 +62,28 @@ class TestLikePostView(APITestCase):
         response = views.like_post(request, self.post.isbn)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['detail'], 'Post already liked')
+        self.assertEqual(response.data["detail"], "Post already liked")
 
         self.post.refresh_from_db()
         like_count = self.post.likes.count()
         self.assertEqual(like_count, 1)
 
-
     def test_delete_liked_post_without_auth(self):
-        """ test deleting like without auth"""
-        url = reverse('like-post', args=[self.post.isbn])
+        """Test deleting like without auth"""
+        url = reverse("like-post", args=[self.post.isbn])
         request = self.factory.delete(path=url)
 
         response = views.like_post(request, self.post.isbn)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data['detail'], 'Authentication credentials were not provided')
-
+        self.assertEqual(
+            response.data["detail"], "Authentication credentials were not provided"
+        )
 
     def test_delete_liked_post_with_auth(self):
-        """ test deleting post with authentication """
+        """Test deleting post with authentication"""
         # first like the post
-        url = reverse('like-post', args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.isbn])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
@@ -108,36 +108,33 @@ class TestLikePostView(APITestCase):
 class TestLikeCommentView(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            full_name='ABC',
-            email='testing@gmail.com',
-            password='testing'
+            full_name="ABC", email="testing@gmail.com", password="testing"
         )
         self.post = Post.objects.create(
             author=self.user,
-            content='This is a sample content',
-            title='Introduction to Mathematics',
+            content="This is a sample content",
+            title="Introduction to Mathematics",
         )
         self.comment = Comment.objects.create(
-            author = self.user,
-            content='This is a nice write up',
-            post=self.post
+            author=self.user, content="This is a nice write up", post=self.post
         )
         self.factory = APIRequestFactory()
 
     def test_like_comment_without_auth(self):
-        """ test liking a comment without authentication """
-        url = reverse('like-comment', args=[self.comment.id])
+        """Test liking a comment without authentication"""
+        url = reverse("like-comment", args=[self.comment.id])
         request = self.factory.post(url)
 
         response = views.like_comment(request, self.comment.id)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data['detail'], 'Authentication credentials were not provided')
-
+        self.assertEqual(
+            response.data["detail"], "Authentication credentials were not provided"
+        )
 
     def test_like_comment_with_auth(self):
-        """ test liking a comment with authentication """
-        url = reverse('like-comment', args=[self.comment.id])
+        """Test liking a comment with authentication"""
+        url = reverse("like-comment", args=[self.comment.id])
         request = self.factory.post(url)
         force_authenticate(request=request, user=self.user)
 
@@ -148,10 +145,9 @@ class TestLikeCommentView(APITestCase):
 
         self.assertEqual(self.comment.likes.count(), 1)
 
-
     def test_user_cannot_like_comment_more_than_once(self):
-        """ test liking comment more than once """
-        url = reverse('like-comment', args=[self.comment.id])
+        """Test liking comment more than once"""
+        url = reverse("like-comment", args=[self.comment.id])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
@@ -161,19 +157,19 @@ class TestLikeCommentView(APITestCase):
         response = views.like_comment(request, self.comment.id)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['detail'], 'Comment already liked')
+        self.assertEqual(response.data["detail"], "Comment already liked")
 
         self.post.refresh_from_db()
         self.assertEqual(self.comment.likes.count(), 1)
 
     def test_delete_comment_without_auth(self):
-        """ test deleting like without auth"""
+        """Test deleting like without auth"""
         pass
 
     def test_delete_comment_with_auth(self):
-        """ test deleting comment with authentication """
+        """Test deleting comment with authentication"""
         # first like the comment
-        url = reverse('like-comment', args=[self.comment.id])
+        url = reverse("like-comment", args=[self.comment.id])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
