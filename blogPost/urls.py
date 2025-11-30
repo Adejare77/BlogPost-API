@@ -1,8 +1,8 @@
-"""
-URL configuration for blogPost project.
+"""URL configuration for blogPost project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
+
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -13,23 +13,34 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+
 """
+
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 from drf_spectacular.views import (
-    SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
 )
 
-
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('core.authentication.urls')),
-    path('api/users/', include('user.urls')),
-    path('api/posts/', include('post.urls')),
+    path("admin/", admin.site.urls),
+    path("api/", include("core.authentication.urls")),
+    path("api/users/", include("user.urls")),
+    path("api/posts/", include("post.urls")),
     # path('api/posts/<uuid:post_id>/comments/', include('comment.urls')),
-    path('api/', include('comment.urls')),
-    path('api/', include('like.urls')),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc')
+    path("api/", include("comment.urls")),
+    path("api/", include("like.urls")),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/swagger/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger",
+    ),
+    path(
+        "api/schema/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
+    ),
 ]
