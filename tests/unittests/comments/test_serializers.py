@@ -28,6 +28,7 @@ class TestCommentListSerializer(APITestCase):
     def test_serializer_uses_attached_attributes(self):
         self.comment.excerpt = self.comment.content[:10]
         self.comment.reply_count = 2
+        self.comment.like_count = 6
 
         ser = CommentListSerializer(instance=self.comment)
 
@@ -91,6 +92,7 @@ class TestCommentDetailSerializer(APITestCase):
         )
 
     def test_serializer_skips_read_attributes(self):
+        self.comment.like_count = 0
         ser = CommentDetailSerializer(instance=self.comment)
 
         self.assertSetEqual(
@@ -132,6 +134,7 @@ class TestReplyListSerializer(APITestCase):
 
     def test_serializer_uses_attached_attributes(self):
         self.reply.excerpt = self.reply.content[:10]
+        self.reply.like_count = 0
 
         ser = ReplyListSerializer(instance=self.reply)
 
@@ -163,6 +166,7 @@ class TestReplyDetailSerializer(APITestCase):
         )
 
     def test_serializer_uses_all_attributes(self):
+        self.reply.like_count = 1
         ser = ReplyDetailSerializer(instance=self.reply)
 
         self.assertSetEqual(
@@ -188,6 +192,7 @@ class TestReplyDetailSerializer(APITestCase):
         self.assertEqual(ser.data["content"], self.reply.content)
 
     def test_serializer_skips_read_attributes(self):
+        self.comment.like_count = 3
         ser = ReplyDetailSerializer(instance=self.comment)
 
         self.assertSetEqual(
