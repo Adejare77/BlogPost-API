@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('post', '0003_alter_post_author_alter_post_content_and_more'),
+        ("post", "0003_alter_post_author_alter_post_content_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='post',
-            name='content',
-            field=models.TextField(error_messages={'blank': 'content field cannot be empty'}),
+            model_name="post",
+            name="content",
+            field=models.TextField(
+                error_messages={"blank": "content field cannot be empty"}
+            ),
         ),
         migrations.AlterField(
-            model_name='post',
-            name='title',
-            field=models.CharField(error_messages={'blank': 'title field cannot be empty', 'max_length': 'cannot accept more than 50 characters'}, max_length=50),
+            model_name="post",
+            name="title",
+            field=models.CharField(
+                error_messages={
+                    "blank": "title field cannot be empty",
+                    "max_length": "cannot accept more than 50 characters",
+                },
+                max_length=50,
+            ),
         ),
     ]
