@@ -100,9 +100,7 @@ if env("TESTING"):
         "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
     }
 else:
-    DATABASES = {
-        "default": env.db()  # reads all in the .env
-    }
+    DATABASES = {"default": env.db()}  # reads all in the .env
 
 
 SESSION_ALIAS = "default"
@@ -114,8 +112,10 @@ SESSION_COOKIE_AGE = 600  # 5 minutes
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": ("django.contrib.auth.password_validation."
-        "UserAttributeSimilarityValidator")
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        )
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
