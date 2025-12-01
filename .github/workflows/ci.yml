@@ -51,9 +51,9 @@ jobs:
       - name: Run migrations
         run: |
           for i in {1..30}; do
-          until pg_isready -h postgres_db -p 5432 -U ci_user && break
-          echo "Waiting for Postgres..."
-          sleep 2
+            pg_isready -h postgres_db -p 5432 -U ci_user && break
+            echo "Waiting for Postgres..."
+            sleep 2
           done
           python manage.py migrate --noinput
 
