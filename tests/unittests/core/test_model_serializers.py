@@ -206,7 +206,6 @@ class CoreCustomTokenObtainPairSerializerTests(APITestCase):
         serializer = CustomTokenObtainPairSerializer(data=data)
 
         self.assertFalse(serializer.is_valid())
-        # self.assertEqual('password field is required', serializer.errors.get('password')[0])
         self.assertEqual(
             "password field is required", serializer.errors.get("password")[0]
         )
@@ -217,7 +216,6 @@ class CoreCustomTokenObtainPairSerializerTests(APITestCase):
         serializer = CustomTokenObtainPairSerializer(data=data)
 
         self.assertFalse(serializer.is_valid())
-        # self.assertEqual('password cannot be empty', serializer.errors.get('password')[0])
         self.assertEqual(
             "password cannot be empty", serializer.errors.get("password")[0]
         )

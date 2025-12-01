@@ -76,11 +76,15 @@ class PostListViewTests(APITestCase):
 
     def test_unauthenticated_user_cannot_get_drafts(self):
         """Test getting draft post by unauthenticated user"""
-        url = reverse("posts")
+        url = reverse("posts") + "?status=draft"
         request = self.factory.get(url)
         response = views.post_list(request)
 
-        # Give right response later
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            "Authentication credentials were not provided",
+            str(response.data.get("detail")),
+        )
 
     def test_authenticated_user_can_get_own_drafts(self):
         """Test getting own draft posts"""
@@ -89,7 +93,8 @@ class PostListViewTests(APITestCase):
         force_authenticate(request=request, user=self.user)
         response = views.post_list(request)
 
-        # Give right response later
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['results'][0]['is_published'])
 
     def test_unautheticated_user_get_draft(self):
         """Test attempt to get drafts"""
@@ -136,7 +141,7 @@ class PostListViewTests(APITestCase):
     def test_status_param_get_published_posts(self, test_name, input_data):
         """Test status param gets all published posts for all users"""
         base = reverse("posts")
-        if input_data == None:
+        if input_data is None:
             url = base
         elif input_data == "":
             url = base + "?status="
@@ -155,7 +160,7 @@ class PostListViewTests(APITestCase):
     def test_status_param_get_draft_for_own_auth_user(self, test_name, input_data):
         """Test status param gets all draft posts for authenticated users"""
         base = reverse("posts")
-        if input_data == None:
+        if input_data is None:
             url = base
         elif input_data == "":
             url = base + "?status="
