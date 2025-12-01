@@ -49,7 +49,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run migrations
-        run: python manage.py migrate --noinput
+        run: |
+          until pg_isready -h localhost -p 5432 -U ci_user; do
+          echo "Waiting for Postgres..."
+          sleep 2
+          done
+          python manage.py migrate --noinput
 
       - name: Run linters
         run: |
