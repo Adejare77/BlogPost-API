@@ -61,7 +61,7 @@ jobs:
       - name: Run linters
         run: |
           pip install flake8
-          flake8 --max-line-length=88
+          flake8 --max-line-length=88 --exclude=*/migrations/*
 
       - name: Run Tests
         run: python manage.py test tests
