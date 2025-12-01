@@ -27,7 +27,9 @@ class BlogAPIIntegrationTest(APITestCase):
         cls.post = Post.objects.create(
             author=cls.user1,
             title="Introduction to Politics",
-            content="Perhaps the greatest issue we are facing in world has everything to do with politics",
+            content=("Perhaps the greatest issue we are facing in world "
+                     "has everything to do with politics"
+            ),
             is_published=True,
         )
         cls.draft = Post.objects.create(
@@ -37,14 +39,18 @@ class BlogAPIIntegrationTest(APITestCase):
         )
         cls.comment = Comment.objects.create(
             author=cls.user2,
-            content="I couldn't agree more to this. The number of gullible people in this country is beyond comprehension",
+            content=("I couldn't agree more to this. The number of gullible "
+                     "people in this country is beyond comprehension"
+            ),
             post=cls.post,
         )
         cls.reply = Comment.objects.create(
             author=cls.user1,
             parent=cls.comment,
             post=cls.post,
-            content="Of course. It's unfortunate that people's intelligence couldn't be tested before voting",
+            content=("Of course. It's unfortunate that people's intelligence "
+                     "couldn't be tested before voting"
+            ),
         )
         cls.like_post = Like.objects.create(
             user=cls.user2,
@@ -136,7 +142,9 @@ class BlogAPIIntegrationTest(APITestCase):
     #     response = self.
 
     def test_admin_can_disable_user_account(self):
-        """Admin disables user -> user.is_active False (or flag), and effect observed."""
+        """
+        Admin disables user -> user.is_active False (or flag), and effect observed.
+        """
         # Anonymous user -> Unauthorized
         url = reverse("disable-account", args=[self.user2.id])
         response = self.client.post(url)
