@@ -16,7 +16,7 @@ jobs:
           POSTGRES_DB: test_db
           POSTGRES_USER: ci_user
           POSTGRES_PASSWORD: ci_password
-        port: ["5432:5432"]
+
         options: >-
           --health-cmd "pg_isready -U ci_user -d test_db"
           --health-interval 10s
