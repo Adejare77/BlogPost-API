@@ -3,5 +3,3 @@ __pycache__/
 **/__pycache__/
 run.sh
 *.toml
-*/migrations/*.py
-*/migrations/*.pyc
