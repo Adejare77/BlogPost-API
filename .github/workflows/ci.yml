@@ -24,7 +24,7 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgres://ci_user:ci_password@localhost:5432/test_db
+      DATABASE_URL: postgres://ci_user:ci_password@postgres_db:5432/test_db
       TESTING: "false"
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
@@ -50,7 +50,8 @@ jobs:
 
       - name: Run migrations
         run: |
-          until pg_isready -h localhost -p 5432 -U ci_user; do
+          for i in {1..30}; do
+          until pg_isready -h postgres_db -p 5432 -U ci_user && break
           echo "Waiting for Postgres..."
           sleep 2
           done
