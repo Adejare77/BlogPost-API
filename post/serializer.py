@@ -21,6 +21,12 @@ class PostDetailSerializer(serializers.ModelSerializer):
     top_comments = CommentSummarySerializer(many=True, read_only=True)
     comment_count = serializers.IntegerField(read_only=True)
     likes = serializers.IntegerField(read_only=True, source="like_count")
+    title = serializers.CharField(
+        error_messages={"blank": "title field cannot be empty"}
+    )
+    content = serializers.CharField(
+        error_messages={"blank": "content field cannot be empty"}
+    )
 
     class Meta:
         model = Post
