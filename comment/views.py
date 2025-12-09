@@ -28,12 +28,12 @@ def post_comments(request: Request, post_id):
     if request.method == "GET":
         queryset = (
             Comment.objects.filter(post=post_id, parent__isnull=True)
-            .order_by("-created_at")
             .annotate(
                 excerpt=Concat(Substr("content", 1, 80), Value("...")),
                 reply_count=Count("replies__id", distinct=True),
                 like_count=Count("likes__id", distinct=True),
             )
+            .order_by("-like_count", "-reply_count")
         )
 
         paginator = PageNumberPagination()
