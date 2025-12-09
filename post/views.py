@@ -1,4 +1,4 @@
-from django.db.models import Count, Prefetch, Value
+from django.db.models import Count, Prefetch, Value, Q
 from django.db.models.functions import Concat, Substr
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -25,7 +25,11 @@ from post.serializer import PostDetailSerializer, PostListSerializer
 def post_list(request: Request):
     if request.method == "GET":
         qs = Post.objects.order_by("-created_at").annotate(
-            comment_count=Count("comments__id", distinct=True),
+            comment_count=Count(
+                "comments__id",
+                filter=Q(comments__parent__isnull=True),
+                distinct=True
+                ),
             excerpt=Concat(Substr("content", 1, 100), Value(" ...")),
             like_count=Count("likes__id", distinct=True),
         )
@@ -67,7 +71,7 @@ def post_detail(request: Request, post_id):
                     like_count=Count("likes__id", distinct=True),
                     reply_count=Count("replies__id", distinct=True),
                 )
-                .order_by("-likes")[:3]
+                .order_by("-likes", "-reply_count")[:3]
             )
 
             post = (
@@ -77,7 +81,10 @@ def post_detail(request: Request, post_id):
                     )
                 )
                 .annotate(
-                    comment_count=Count("comments"),
+                    comment_count=Count(
+                        "comments",
+                        filter=Q(comments__parent__isnull=True),
+                        distinct=True),
                     like_count=Count("likes__id", distinct=True),
                 )
                 .get(isbn=post_id)
@@ -123,9 +130,13 @@ def get_popular_posts(request: Request):
         .annotate(
             excerpt=Concat(Substr("content", 1, 100), Value("...")),
             like_count=Count("likes__id", distinct=True),
-            comment_count=Count("comments__id", distinct=True),
+            comment_count=Count(
+                "comments__id",
+                filter=Q(comments__parent__isnull=True),
+                distinct=True
+                ),
         )
-        .order_by("-like_count")[:10]
+        .order_by("-like_count", "comment_count")[:10]
     )
 
     serializer = PostListSerializer(qs, many=True)
