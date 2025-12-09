@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: "test_db"
+      POSTGRES_PASSWORD: "docker_pass"
+      POSTGRES_USER: "docker_user"
+    volumes:
+      - my_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docker_user -d test_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    environment:
+      DATABASE_URL: postgres://docker_user:docker_pass@postgres:5432/test_db
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG:-"1"}
+      TESTING: ${TESTING:-False}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  my_data:
