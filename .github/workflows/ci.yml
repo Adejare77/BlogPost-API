@@ -78,7 +78,7 @@ jobs:
       - name: Set IMAGE_NAME
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/blogpost-api
+          IMAGE_NAME=ghcr.io/${OWNER}/blogpost-api
           echo "SHA_NAME=$IMAGE_NAME:ci-${{ github.sha }}" >> $GITHUB_ENV
           TAG=${GITHUB_REF#refs/tags/}
           echo "VERSION=${IMAGE_NAME}:$TAG" >> $GITHUB_ENV
