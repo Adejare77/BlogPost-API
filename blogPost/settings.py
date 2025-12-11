@@ -102,11 +102,6 @@ if env("TESTING"):
 else:
     DATABASES = {"default": env.db()}  # reads all in the .env
 
-
-SESSION_ALIAS = "default"
-SESSION_COOKIE_AGE = 600  # 5 minutes
-# SESSION_SAVE_EVERY_REQUEST = True
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
