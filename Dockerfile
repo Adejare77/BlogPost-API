@@ -17,4 +17,4 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-CMD [ "python", "manage.py", "runserver" ]
+CMD [ "gunicorn", "blogPost.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
