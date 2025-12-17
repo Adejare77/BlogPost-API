@@ -4,8 +4,8 @@ from parameterized import parameterized
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
 
-from post import views
-from post.models import Post
+from api.v1.post import views
+from app.post.models import Post
 
 User = get_user_model()
 

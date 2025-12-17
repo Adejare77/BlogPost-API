@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from comment.models import Comment
-from post.models import Post
+from app.comment.models import Comment
+from app.post.models import Post
 
 
 class CommentModelTests(TestCase):

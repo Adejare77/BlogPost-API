@@ -1,14 +1,14 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
-from comment.models import Comment
-from comment.serializer import (
+from app.comment.models import Comment
+from app.comment.serializer import (
     CommentDetailSerializer,
     CommentListSerializer,
     ReplyDetailSerializer,
     ReplyListSerializer,
 )
-from post.models import Post
+from app.post.models import Post
 
 
 class TestCommentListSerializer(APITestCase):

@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from post.models import Post
+from app.post.models import Post
 
 
 class PostModelTests(TestCase):

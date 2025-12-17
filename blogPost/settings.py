@@ -45,14 +45,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
     "django_filters",
-    "user",
-    "post",
-    "like",
-    "comment",
-    "utils",
     "drf_spectacular",
+    "rest_framework",
+    "app.user",
+    "app.post",
+    "app.like",
+    "app.comment",
+    "app.utils",
 ]
 
 MIDDLEWARE = [

@@ -3,9 +3,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
 
-from comment import views
-from comment.models import Comment
-from post.models import Post
+from api.v1.comment import views
+from app.comment.models import Comment
+from app.post.models import Post
 
 
 class CommentListViewTests(APITestCase):

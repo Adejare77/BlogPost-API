@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APITestCase
 
-from core.authentication.serializers import (
+from app.core.authentication.serializers import (
     CustomTokenObtainPairSerializer,
     LoginSerializer,
     RegisterSerializer,

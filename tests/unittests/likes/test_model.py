@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from comment.models import Comment
-from like.models import Like
-from post.models import Post
+from app.comment.models import Comment
+from app.like.models import Like
+from app.post.models import Post
 
 
 class TestLikeModel(TestCase):
