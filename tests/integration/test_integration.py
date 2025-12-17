@@ -4,9 +4,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from comment.models import Comment
-from like.models import Like
-from post.models import Post
+from app.comment.models import Comment
+from app.like.models import Like
+from app.post.models import Post
 
 
 class BlogAPIIntegrationTest(APITestCase):
