@@ -7,17 +7,18 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
 from app.comment.models import Comment
 from app.core.permissions import (
     AllowAnyForGetRequireAuthForWrite,
     IsAdminOrSelf,
-    IsAuthenticated,
+    DraftAccessPermission,
 )
 from app.post.filters import PostFilter
 from app.post.models import Post
-from app.post.serializer import PostDetailSerializer, PostListSerializer
-
+from api.v1.post.serializer import PostDetailSerializer, PostListSerializer
+from app.post.service import get_accessible_posts_queryset
 
 @extend_schema(operation_id="ListPosts")
 @api_view(["POST", "GET"])
@@ -26,17 +27,17 @@ def post_list(request: Request):
     if request.method == "GET":
         qs = Post.objects.order_by("-created_at").annotate(
             comment_count=Count(
-                "comments__id",
+                "comments",
                 filter=Q(comments__parent__isnull=True),
                 distinct=True
                 ),
             excerpt=Concat(Substr("content", 1, 100), Value(" ...")),
-            like_count=Count("likes__id", distinct=True),
+            like_count=Count("likes", distinct=True),
         )
 
-        query_params = request.query_params.copy()
-        if "status" not in query_params or query_params["status"].strip() == "":
-            query_params["status"] = "published"
+        user = request.user
+        query_params = request.query_params
+        qs = get_accessible_posts_queryset(user, qs, query_params)
 
         filterset = PostFilter(data=query_params, request=request, queryset=qs)
         if not filterset.is_valid():
@@ -68,8 +69,8 @@ def post_detail(request: Request, post_id):
                 .prefetch_related("replies")
                 .annotate(
                     excerpt=Concat(Substr("content", 1, 100), Value(" ...")),
-                    like_count=Count("likes__id", distinct=True),
-                    reply_count=Count("replies__id", distinct=True),
+                    like_count=Count("likes", distinct=True),
+                    reply_count=Count("replies", distinct=True),
                 )
                 .order_by("-likes", "-reply_count")[:3]
             )
@@ -85,14 +86,17 @@ def post_detail(request: Request, post_id):
                         "comments",
                         filter=Q(comments__parent__isnull=True),
                         distinct=True),
-                    like_count=Count("likes__id", distinct=True),
+                    like_count=Count("likes", distinct=True),
                 )
-                .get(isbn=post_id)
+                .get(id=post_id)
             )
 
-            if not post.is_published and not request.user.is_staff:
-                IsAuthenticated().has_permission(request, None)
-                IsAdminOrSelf().has_object_permission(request, None, post)
+            if post.is_published == False and not request.user.is_authenticated:
+                raise NotAuthenticated("Authentication credentials were not provided.")
+
+            permission = DraftAccessPermission()
+            if not permission.has_object_permission(request, None, post):
+                raise PermissionDenied(permission.message)
 
         except Post.DoesNotExist:
             return Response(
@@ -103,12 +107,14 @@ def post_detail(request: Request, post_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     try:
-        post = Post.objects.get(isbn=post_id)
+        post = Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         return Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
     # check for permission
-    IsAdminOrSelf().has_object_permission(request, None, post)
+    permissions = IsAdminOrSelf()
+    if not permissions.has_object_permission(request, None, post):
+        raise PermissionDenied(permissions.message)
 
     if request.method == "PATCH":
         serializer = PostDetailSerializer(
@@ -129,9 +135,9 @@ def get_popular_posts(request: Request):
         Post.objects.filter(is_published=True)
         .annotate(
             excerpt=Concat(Substr("content", 1, 100), Value("...")),
-            like_count=Count("likes__id", distinct=True),
+            like_count=Count("likes", distinct=True),
             comment_count=Count(
-                "comments__id",
+                "comments",
                 filter=Q(comments__parent__isnull=True),
                 distinct=True
                 ),
