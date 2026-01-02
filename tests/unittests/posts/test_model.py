@@ -24,7 +24,7 @@ class PostModelTests(TestCase):
         self.assertEqual(post.content, data["content"])
         self.assertEqual(post.author, data["author"])
         self.assertFalse(post.is_published)
-        self.assertIsNotNone(post.isbn)
+        self.assertIsNotNone(post.id)
 
 
 class PostModelValidationTests(TestCase):

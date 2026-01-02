@@ -26,7 +26,7 @@ class TestLikeModel(TestCase):
         Like.objects.create(
             user=self.user,
             content_type=ContentType.objects.get_for_model(Post),
-            object_id=self.post.isbn,
+            object_id=self.post.id,
         )
 
         self.post.refresh_from_db()
@@ -50,7 +50,7 @@ class TestLikeModel(TestCase):
     #     like = Like.objects.create(
     #         user=self.user,
     #         content_type=ContentType.objects.get_for_model(Post),
-    #         object_id=self.post.isbn
+    #         object_id=self.post.id
     #     )
     #     like.delete()
 

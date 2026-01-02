@@ -23,10 +23,10 @@ class TestLikePostView(APITestCase):
 
     def test_like_post_without_auth(self):
         """Test liking a post without authentication"""
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         request = self.factory.post(path=url)
 
-        response = views.like_post(request, self.post.isbn)
+        response = views.like_post(request, self.post.id)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
@@ -38,11 +38,11 @@ class TestLikePostView(APITestCase):
 
     def test_like_post_with_auth(self):
         """Test liking a post with authentication"""
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
-        response = views.like_post(request, self.post.isbn)
+        response = views.like_post(request, self.post.id)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -52,14 +52,14 @@ class TestLikePostView(APITestCase):
 
     def test_user_cannot_like_more_than_once(self):
         """Test liking more than once"""
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
         # first like
-        views.like_post(request, self.post.isbn)
+        views.like_post(request, self.post.id)
         # second like
-        response = views.like_post(request, self.post.isbn)
+        response = views.like_post(request, self.post.id)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["detail"], "Post already liked")
@@ -70,10 +70,10 @@ class TestLikePostView(APITestCase):
 
     def test_delete_liked_post_without_auth(self):
         """Test deleting like without auth"""
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         request = self.factory.delete(path=url)
 
-        response = views.like_post(request, self.post.isbn)
+        response = views.like_post(request, self.post.id)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
@@ -83,11 +83,11 @@ class TestLikePostView(APITestCase):
     def test_delete_liked_post_with_auth(self):
         """Test deleting post with authentication"""
         # first like the post
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         request = self.factory.post(path=url)
         force_authenticate(request=request, user=self.user)
 
-        response = views.like_post(request, self.post.isbn)
+        response = views.like_post(request, self.post.id)
         self.post.refresh_from_db()
 
         like_count = self.post.likes.count()
@@ -97,7 +97,7 @@ class TestLikePostView(APITestCase):
         request = self.factory.delete(path=url)
         force_authenticate(request=request, user=self.user)
 
-        response = views.like_post(request, self.post.isbn)
+        response = views.like_post(request, self.post.id)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 

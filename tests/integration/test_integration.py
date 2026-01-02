@@ -58,7 +58,7 @@ class BlogAPIIntegrationTest(APITestCase):
         cls.like_post = Like.objects.create(
             user=cls.user2,
             content_type=ContentType.objects.get_for_model(Post),
-            object_id=cls.post.isbn,
+            object_id=cls.post.id,
         )
         cls.like_comment = Like.objects.create(
             user=cls.user1,
@@ -228,7 +228,7 @@ class BlogAPIIntegrationTest(APITestCase):
 
     def test_retrieve_post_public_view(self):
         # Anonymous user -> 200
-        url = reverse("post-detail", args=[self.post.isbn])
+        url = reverse("post-detail", args=[self.post.id])
         response = self.client.get(path=url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -243,7 +243,7 @@ class BlogAPIIntegrationTest(APITestCase):
     def test_update_own_post_with_auth_succeeds(self):
         """PATCH post -> 200"""
         # Authenticated user -> 200
-        url = reverse("post-detail", args=[self.post.isbn])
+        url = reverse("post-detail", args=[self.post.id])
         self.client.force_authenticate(user=self.user1)
         data = {"title": "This is a new Title"}
         response = self.client.patch(path=url, data=data, format="json")
@@ -267,7 +267,7 @@ class BlogAPIIntegrationTest(APITestCase):
     def test_update_other_users_post_with_auth_returns_403(self):
         """PATCH others post -> 403"""
         # Anonymous user -> 401
-        url = reverse("post-detail", args=[self.post.isbn])
+        url = reverse("post-detail", args=[self.post.id])
         data = {"title": "This is a new Title"}
         response = self.client.patch(path=url, data=data, format="json")
 
@@ -287,7 +287,7 @@ class BlogAPIIntegrationTest(APITestCase):
     def test_delete_own_post_with_auth_succeeds(self):
         """DELETE own post -> 204"""
         # anonymous user -> 201
-        url = reverse("post-detail", args=[self.post.isbn])
+        url = reverse("post-detail", args=[self.post.id])
         response = self.client.delete(path=url)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -300,7 +300,7 @@ class BlogAPIIntegrationTest(APITestCase):
 
     def test_delete_other_users_post_with_auth_returns_403(self):
         """DELETE others post -> 403"""
-        url = reverse("post-detail", args=[self.post.isbn])
+        url = reverse("post-detail", args=[self.post.id])
         self.client.force_authenticate(user=self.user2)
         response = self.client.delete(path=url)
 
@@ -376,7 +376,7 @@ class BlogAPIIntegrationTest(APITestCase):
         self.assertSetEqual(
             set(response.data["results"][0].keys()),
             {
-                "isbn",
+                "id",
                 "title",
                 "excerpt",
                 "author",
@@ -392,7 +392,7 @@ class BlogAPIIntegrationTest(APITestCase):
         """POST comment -> 201/401"""
         # anonymous user -> 401
         data = {"content": "I love your write-ups. Nice"}
-        url = reverse("comments", args=[self.post.isbn])
+        url = reverse("comments", args=[self.post.id])
         response = self.client.post(path=url, data=data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -409,7 +409,7 @@ class BlogAPIIntegrationTest(APITestCase):
 
     def test_get_post_comments_includes_comment_count_and_preview(self):
         """GET post_comments -> 200"""
-        url = reverse("comments", args=[self.post.isbn])
+        url = reverse("comments", args=[self.post.id])
         # anonymous user
         response = self.client.get(path=url)
 
@@ -512,7 +512,7 @@ class BlogAPIIntegrationTest(APITestCase):
     # --- Likes ---
     def test_like_post_with_auth_creates_like(self):
         """POST like-post: 201"""
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         self.client.force_authenticate(user=self.user1)
         response = self.client.post(url)
 
@@ -524,7 +524,7 @@ class BlogAPIIntegrationTest(APITestCase):
     def test_like_post_without_auth_returns_401(self):
         """POST like-post: 401"""
         # anonymous user
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         response = self.client.post(url)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -557,7 +557,7 @@ class BlogAPIIntegrationTest(APITestCase):
     def test_like_idempotency_or_toggle_behavior(self):
         """Like Post/Comment multiple times -> 400"""
         # --- for Post ----
-        url = reverse("like-post", args=[self.post.isbn])
+        url = reverse("like-post", args=[self.post.id])
         self.client.force_authenticate(user=self.user2)
         response = self.client.post(url)
 

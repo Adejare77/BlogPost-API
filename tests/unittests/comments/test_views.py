@@ -52,69 +52,69 @@ class CommentListViewTests(APITestCase):
 
     def test_create_comment_without_auth(self):
         """Test creating a comment without authentication"""
-        url = reverse("comments", args=[self.post1.isbn])
+        url = reverse("comments", args=[self.post1.id])
         data = {"content": "This is a very nice Post. Please, keep it up!"}
         request = self.factory.post(url, data=data)
 
-        response = views.post_comments(request, self.post1.isbn)
+        response = views.post_comments(request, self.post1.id)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     def test_create_comment_with_auth(self):
         """Create a comment after authentication"""
-        url = reverse("comments", args=[self.post1.isbn])
+        url = reverse("comments", args=[self.post1.id])
         data = {"content": "This is a very nice Post. Please, keep it up!"}
         request = self.factory.post(url, data=data, format="json")
         force_authenticate(request=request, user=self.user2)
 
-        response = views.post_comments(request, self.post1.isbn)
+        response = views.post_comments(request, self.post1.id)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["content"], data["content"])
 
     def test_create_empty_comment(self):
         """Test creating an empty comment with authentication"""
-        url = reverse("comments", args=[self.post2.isbn])
+        url = reverse("comments", args=[self.post2.id])
         data = {"content": ""}
         request = self.factory.post(path=url, data=data, format="json")
         force_authenticate(request=request, user=self.user1)
 
-        response = views.post_comments(request, self.post2.isbn)
+        response = views.post_comments(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("content field cannot be empty", response.data["content"][0])
 
     def test_create_comment_on_draft_post(self):
         """Test commenting on a draft with authentication"""
-        url = reverse("comments", args=[self.post3.isbn])
+        url = reverse("comments", args=[self.post3.id])
         data = {"content": "Very good write up"}
         request = self.factory.post(path=url, data=data, format="json")
         force_authenticate(request=request, user=self.user1)
 
-        response = views.post_comments(request, self.post3.isbn)
+        response = views.post_comments(request, self.post3.id)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["detail"], "Post not found")
 
     def test_get_comments_without_auth(self):
         """Test getting comments without authentication"""
-        url = reverse("comments", args=[self.post2.isbn])
+        url = reverse("comments", args=[self.post2.id])
         request = self.factory.get(url)
 
-        response = views.post_comments(request, self.post2.isbn)
+        response = views.post_comments(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_comments_with_auth(self):
         """Test getting comments with authentication"""
-        url = reverse("comments", args=[self.post2.isbn])
+        url = reverse("comments", args=[self.post2.id])
         request = self.factory.get(path=url)
         force_authenticate(request=request, user=self.user2)
 
-        response = views.post_comments(request, self.post2.isbn)
+        response = views.post_comments(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -184,7 +184,7 @@ class CommentDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     def test_delete_own_comment_with_auth(self):
@@ -336,7 +336,7 @@ class ReplyListViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     def test_create_reply_with_auth(self):
@@ -375,18 +375,6 @@ class ReplyListViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("content field is required", response.data["content"][0])
-
-    # def test_create_reply_with_invalid_comment_id(self):
-    #     """ test creating reply with invalid comment Id """
-    #     url = reverse('replies', args=['5471-8751-sqd7-fdse'])
-    #     data = {'content': 'This is not meant to work'}
-    #     request = self.factory.post(path=url, data=data)
-    #     force_authenticate(request=request, user=self.user2)
-
-    #     response = views.comment_replies(request, '5471-8751-sqd7-fdse')
-
-    #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    #     self.assertEqual(response.data['detail'], 'Reply not found')
 
     def test_get_replies_without_auth(self):
         """Test getting replies to comment without authentication"""
@@ -510,7 +498,7 @@ class ReplyDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     def test_update_own_reply_with_auth(self):
@@ -536,7 +524,7 @@ class ReplyDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action"
+            response.data["detail"], "You do not have permission to perform this action."
         )
 
     def test_update_reply_with_empty_content(self):
@@ -571,7 +559,7 @@ class ReplyDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     def test_delete_own_reply_with_authentication(self):
@@ -594,7 +582,7 @@ class ReplyDetailViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action"
+            response.data["detail"], "You do not have permission to perform this action."
         )
 
     def test_admin_can_delete_any_reply(self):

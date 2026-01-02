@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from app.post.models import Post
-from app.post.serializer import PostDetailSerializer, PostListSerializer
+from api.v1.post.serializer import PostDetailSerializer, PostListSerializer
 
 
 class TestPostListSerializer(APITestCase):
@@ -27,7 +27,7 @@ class TestPostListSerializer(APITestCase):
         self.assertSetEqual(
             set(ser.data.keys()),
             {
-                "isbn",
+                "id",
                 "title",
                 "excerpt",
                 "author",
@@ -62,7 +62,7 @@ class TestPostDetailSerializer(APITestCase):
         self.assertSetEqual(
             set(ser.data.keys()),
             {
-                "isbn",
+                "id",
                 "author",
                 "title",
                 "content",
@@ -95,5 +95,5 @@ class TestPostDetailSerializer(APITestCase):
 
         self.assertSetEqual(
             set(ser.data.keys()),
-            {"isbn", "author", "title", "content", "is_published", "created_at"},
+            {"id", "author", "title", "content", "is_published", "created_at"},
         )

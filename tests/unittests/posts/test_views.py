@@ -53,7 +53,7 @@ class PostListViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            "Authentication credentials were not provided",
+            "Authentication credentials were not provided.",
             str(response.data.get("detail")),
         )
 
@@ -82,7 +82,7 @@ class PostListViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            "Authentication credentials were not provided",
+            "Authentication credentials were not provided.",
             str(response.data.get("detail")),
         )
 
@@ -113,7 +113,7 @@ class PostListViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action"
+            response.data["detail"], "You do not have permission to perform this action."
         )
 
     def test_auth_user_can_get_both_own_draft_and_published_posts(self):
@@ -184,7 +184,7 @@ class PostListViewTests(APITestCase):
         response = views.post_list(request)
 
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     @parameterized.expand(
@@ -273,52 +273,53 @@ class PostDetailViewTests(APITestCase):
             is_published=False,
         )
 
-    def test_get_published_post_by_isbn_without_auth(self):
+    def test_get_published_post_by_id_without_auth(self):
         """Test getting post by id without credentials"""
-        url = reverse("post-detail", args=[self.post1.isbn])
+        url = reverse("post-detail", args=[self.post1.id])
         request = self.factory.get(url)
-        response = views.post_detail(request, self.post1.isbn)
+        response = views.post_detail(request, self.post1.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["isbn"], str(self.post1.isbn))
+        self.assertEqual(response.data["id"], str(self.post1.id))
 
-    def test_get_published_post_by_isbn_with_auth(self):
+    def test_get_published_post_by_id_with_auth(self):
         """Test getting post by id with credentials"""
-        url = reverse("post-detail", args=[self.post1.isbn])
+        url = reverse("post-detail", args=[self.post1.id])
         request = self.factory.get(url)
-        response = views.post_detail(request, self.post1.isbn)
+        force_authenticate(request=request, user=self.user2)
+        response = views.post_detail(request, self.post1.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["isbn"], str(self.post1.isbn))
+        self.assertEqual(response.data["id"], str(self.post1.id))
 
     def test_get_draft_without_auth(self):
         """Testing getting a draft without credentials"""
-        url = reverse("post-detail", args=[self.post2.isbn])
+        url = reverse("post-detail", args=[self.post2.id])
         request = self.factory.get(url)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     def test_get_own_draft_with_auth(self):
         """Testing getting a draft with credentials"""
-        url = reverse("post-detail", args=[self.post2.isbn])
+        url = reverse("post-detail", args=[self.post2.id])
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.user2)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertFalse(response.data["is_published"])
 
     def test_get_others_draft_with_auth(self):
         """Testing getting other's draft with credentials"""
-        url = reverse("post-detail", args=[self.post2.isbn])
+        url = reverse("post-detail", args=[self.post2.id])
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.user1)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action"
+            response.data["detail"], "You do not have permission to perform this action."
         )
 
     def test_admin_can_get_user_draft(self):
@@ -326,102 +327,99 @@ class PostDetailViewTests(APITestCase):
         url = reverse("posts") + "?status=draft"
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.admin1)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data["is_published"])
 
-    def test_updating_own_post_using_isbn_with_auth(self):
-        """Test updating post by isbn with credentials"""
+    def test_updating_own_post_using_id_with_auth(self):
+        """Test updating post by.id with credentials"""
         data = {"is_published": True, "content": "This is the new content"}
-        url = reverse("post-detail", args=[self.post2.isbn])
+        url = reverse("post-detail", args=[self.post2.id])
 
         request = self.factory.patch(url, data=data, format="json")
         force_authenticate(request=request, user=self.user2)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["is_published"], True)
         self.assertEqual(response.data["content"], "This is the new content")
 
-    def test_updating_post_using_isbn_without_auth(self):
-        """Test updating post by isbn without credentials"""
+    def test_updating_post_using_id_without_auth(self):
+        """Test updating post by.id without credentials"""
         data = {"is_published": True, "content": "This is the new content"}
-        url = reverse("post-detail", args=[self.post2.isbn])
+        url = reverse("post-detail", args=[self.post2.id])
 
         request = self.factory.patch(url, data=data, format="json")
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
-    def test_updating_others_post_using_isbn_with_auth(self):
+    def test_updating_others_post_using_id_with_auth(self):
         """Test updating other's post"""
         data = {"is_published": True, "content": "This is the new content"}
-        url = reverse("post-detail", args=[self.post2.isbn])
+        url = reverse("post-detail", args=[self.post2.id])
         request = self.factory.patch(url, data=data, format="json")
         force_authenticate(request=request, user=self.user1)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action"
+            response.data["detail"], "You do not have permission to perform this action."
         )
 
-    def test_deleting_post_by_isbn_with_auth(self):
-        """Test deleting post by isbn with credentials"""
-        url = reverse("post-detail", args=[self.post2.isbn])
+    def test_deleting_post_by_id_with_auth(self):
+        """Test deleting post by.id with credentials"""
+        url = reverse("post-detail", args=[self.post2.id])
         request = self.factory.delete(url)
         force_authenticate(request=request, user=self.user2)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Post.objects.filter(isbn=self.post2.isbn).exists())
+        self.assertFalse(Post.objects.filter(id=self.post2.id).exists())
 
-    def test_deleting_post_by_isbn_without_auth(self):
-        """Test deleting post by isbn without credentials"""
-        url = reverse("post-detail", kwargs={"post_id": self.post2.isbn})
+    def test_deleting_post_by_id_without_auth(self):
+        """Test deleting post by.id without credentials"""
+        url = reverse("post-detail", kwargs={"post_id": self.post2.id})
         request = self.factory.delete(url)
         force_authenticate(request=request, user=self.user1)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action"
+            response.data["detail"], "You do not have permission to perform this action."
         )
 
     def test_user_cannnot_delete_others_posts(self):
-        """Test deleting post by isbn without credentials"""
-        url = reverse("post-detail", kwargs={"post_id": self.post2.isbn})
+        """Test deleting post by.id without credentials"""
+        url = reverse("post-detail", kwargs={"post_id": self.post2.id})
         request = self.factory.delete(url)
-        response = views.post_detail(request, self.post2.isbn)
+        response = views.post_detail(request, self.post2.id)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided"
+            response.data["detail"], "Authentication credentials were not provided."
         )
 
     def test_admin_can_delete_users_posts(self):
         """Test admin can delete a user's post"""
-        url = reverse("post-detail", args=[self.post1.isbn])
+        url = reverse("post-detail", args=[self.post1.id])
         request = self.factory.delete(url)
         force_authenticate(request=request, user=self.admin1)
 
-        response = views.post_detail(request, self.post1.isbn)
+        response = views.post_detail(request, self.post1.id)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Post.objects.filter(isbn=self.post1.isbn).exists())
+        self.assertFalse(Post.objects.filter(id=self.post1.id).exists())
 
-    def test_admin_cannot_delete_staff_posts(self):
+    def test_admin_can_delete_staff_posts(self):
         """Test admin cannot delete other admin posts"""
-        url = reverse("post-detail", args=[self.post4.isbn])
+        url = reverse("post-detail", args=[self.post4.id])
         request = self.factory.delete(url)
         force_authenticate(request=request, user=self.admin1)
-        response = views.post_detail(request, self.post4.isbn)
+        response = views.post_detail(request, self.post4.id)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action"
-        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

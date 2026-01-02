@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from app.comment.models import Comment
-from app.comment.serializer import (
+from api.v1.comment.serializer import (
     CommentDetailSerializer,
     CommentListSerializer,
     ReplyDetailSerializer,
@@ -109,7 +109,7 @@ class TestCommentDetailSerializer(APITestCase):
 
         self.assertEqual(ser.data["content"], data["content"])
         self.assertEqual(ser.data["author"], self.user.id)
-        self.assertEqual(ser.data["post"], self.post.isbn)
+        self.assertEqual(ser.data["post"], self.post.id)
 
 
 class TestReplyListSerializer(APITestCase):
