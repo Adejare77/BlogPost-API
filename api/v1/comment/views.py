@@ -4,10 +4,11 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.request import Request
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from app.comment.models import Comment
-from app.comment.serializer import (
+from api.v1.comment.serializer import (
     CommentDetailSerializer,
     CommentListSerializer,
     ReplyDetailSerializer,
@@ -21,7 +22,7 @@ from app.post.models import Post
 @permission_classes([AllowAnyForGetRequireAuthForWrite])
 def post_comments(request: Request, post_id):
     try:
-        post = Post.objects.get(isbn=post_id, is_published=True)
+        post = Post.objects.get(id=post_id, is_published=True)
     except Post.DoesNotExist:
         return Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -53,6 +54,10 @@ def post_comments(request: Request, post_id):
 @permission_classes([AllowAnyForGetRequireAuthForWrite])
 def post_comment_detail(request: Request, comment_id):
     if request.method == "GET":
+        try:
+            Comment.objects.get(id=comment_id)
+        except Comment.DoesNotExist:
+            return Response({"detail": "Comment not found"})
         replies_qs = (
             Comment.objects.filter(parent=comment_id)
             .annotate(excerpt=(Concat(Substr("content", 1, 50), Value("..."))))
@@ -80,7 +85,9 @@ def post_comment_detail(request: Request, comment_id):
             {"detail": "Comment not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
-    IsAdminOrSelf().has_object_permission(request=request, obj=comment, view=None)
+    permission = IsAdminOrSelf()
+    if not permission.has_object_permission(request, None, comment):
+        raise PermissionDenied(permission.message)
 
     if request.method == "PATCH":
         serializer = CommentDetailSerializer(
@@ -148,7 +155,9 @@ def comment_reply_details(request: Request, reply_id):
     except Comment.DoesNotExist:
         return Response({"detail": "Reply not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    IsAdminOrSelf().has_object_permission(request=request, obj=reply, view=None)
+    permission = IsAdminOrSelf()
+    if not permission.has_object_permission(request, None, reply):
+        raise PermissionDenied(permission.message)
     if request.method == "PATCH":
         serializer = ReplyDetailSerializer(
             instance=reply, data=request.data, partial=True
