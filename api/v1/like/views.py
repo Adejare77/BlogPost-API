@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from app.comment.models import Comment
 from app.core.permissions import IsAuthenticated
 from app.like.models import Like
-from app.like.serializers import LikeSerializer
+from api.v1.like.serializers import LikeSerializer
 from app.post.models import Post
 
 
@@ -17,7 +17,7 @@ def like_post(request: Request, post_id):
     """Like (POST) or unlike (DELETE) a Post.
     """
     try:
-        Post.objects.get(isbn=post_id)
+        Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         return Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -45,7 +45,7 @@ def like_post(request: Request, post_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     except Like.DoesNotExist:
-        return Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "Like not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["DELETE", "POST"])
