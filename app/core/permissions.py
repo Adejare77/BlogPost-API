@@ -1,41 +1,50 @@
-from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.permissions import BasePermission
 
 
 class IsAuthenticated(BasePermission):
     def has_permission(self, request, view):
-        if not (request.user and request.user.is_authenticated):
-            raise AuthenticationFailed("Authentication credentials were not provided")
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
 
-        if not request.user.is_active:
-            raise AuthenticationFailed("User is disabled")
+        if not user.is_active:
+            self.message = "User is disabled"
+            return False
 
         return True
 
 
+class IsOwner(BasePermission):
+    message = "You do not have permission to perform this action."
+
+    def has_object_permission(self, request, view, obj):
+        return obj.author == request.user
+
+
 class IsAdminUser(BasePermission):
-    message = "You do not have permission to perform this action"
+    message = "You do not have permission to perform this action."
 
     def has_permission(self, request, view):
         return bool(request.user.is_staff)
 
 
 class IsAdminOrSelf(BasePermission):
+    message = "You do not have permission to perform this action."
+
     def has_object_permission(self, request, view, obj):
-        if hasattr(obj, "author"):
-            # only owner or staff if the obj is not staff (Post and Comment)
-            if obj.author == request.user or (
-                request.user.is_staff and not obj.author.is_staff
-            ):
+        if request.user.is_staff:
+            return True
+
+        if hasattr(obj, 'author'):
+            if obj.author == request.user:
                 return True
 
-        # owner (both staff or clients)
-        if hasattr(obj, "id"):
-            if obj == request.user or (request.user.is_staff and not obj.is_staff):
-                return True
+            return False
 
-        # staff try other staff or client try other
-        raise PermissionDenied("You do not have permission to perform this action")
+        if obj.id == request.user:
+            return True
+
+        return False
 
 
 class AllowAnyForGetRequireAuthForWrite(BasePermission):
@@ -43,10 +52,18 @@ class AllowAnyForGetRequireAuthForWrite(BasePermission):
         if request.method == "GET":
             return True
 
-        if not (request.user and request.user.is_authenticated):
-            raise AuthenticationFailed("Authentication credentials were not provided")
-
-        if not (request.user and request.user.is_active):
-            raise AuthenticationFailed("User is disabled")
-
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
         return True
+
+
+class DraftAccessPermission(BasePermission):
+    message = "You do not have permission to perform this action."
+
+    def has_object_permission(self, request, view, obj):
+        if obj.is_published == True:
+            return True
+
+        user = request.user
+        return user.is_staff or user == obj.author
