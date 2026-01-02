@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from app.core.permissions import IsAdminOrSelf, IsAdminUser, IsAuthenticated
-from app.user.serializer import UserSerializer
+from api.v1.user.serializer import UserSerializer
 
 User = get_user_model()
 
