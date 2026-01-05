@@ -20,6 +20,7 @@ from app.post.models import Post
 from api.v1.post.serializer import PostDetailSerializer, PostListSerializer
 from app.post.service import get_accessible_posts_queryset
 
+
 @extend_schema(operation_id="ListPosts")
 @api_view(["POST", "GET"])
 @permission_classes([AllowAnyForGetRequireAuthForWrite])
@@ -27,10 +28,8 @@ def post_list(request: Request):
     if request.method == "GET":
         qs = Post.objects.order_by("-created_at").annotate(
             comment_count=Count(
-                "comments",
-                filter=Q(comments__parent__isnull=True),
-                distinct=True
-                ),
+                "comments", filter=Q(comments__parent__isnull=True), distinct=True
+            ),
             excerpt=Concat(Substr("content", 1, 100), Value(" ...")),
             like_count=Count("likes", distinct=True),
         )
@@ -85,7 +84,8 @@ def post_detail(request: Request, post_id):
                     comment_count=Count(
                         "comments",
                         filter=Q(comments__parent__isnull=True),
-                        distinct=True),
+                        distinct=True,
+                    ),
                     like_count=Count("likes", distinct=True),
                 )
                 .get(id=post_id)
@@ -137,10 +137,8 @@ def get_popular_posts(request: Request):
             excerpt=Concat(Substr("content", 1, 100), Value("...")),
             like_count=Count("likes", distinct=True),
             comment_count=Count(
-                "comments",
-                filter=Q(comments__parent__isnull=True),
-                distinct=True
-                ),
+                "comments", filter=Q(comments__parent__isnull=True), distinct=True
+            ),
         )
         .order_by("-like_count", "comment_count")[:10]
     )
