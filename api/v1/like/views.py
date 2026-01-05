@@ -14,8 +14,7 @@ from app.post.models import Post
 @api_view(["DELETE", "POST"])
 @permission_classes([IsAuthenticated])
 def like_post(request: Request, post_id):
-    """Like (POST) or unlike (DELETE) a Post.
-    """
+    """Like (POST) or unlike (DELETE) a Post."""
     try:
         Post.objects.get(id=post_id)
     except Post.DoesNotExist:
@@ -51,8 +50,7 @@ def like_post(request: Request, post_id):
 @api_view(["DELETE", "POST"])
 @permission_classes([IsAuthenticated])
 def like_comment(request: Request, comment_id):
-    """Like (POST) or unlike (DELETE) a Comment.
-    """
+    """Like (POST) or unlike (DELETE) a Comment."""
     try:
         Comment.objects.get(id=comment_id)
     except Comment.DoesNotExist:
