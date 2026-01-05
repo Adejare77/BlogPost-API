@@ -3,6 +3,7 @@
 from django.db import migrations, models
 import uuid
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,9 +11,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='post',
-            old_name='isbn',
-            new_name='id'
-        ),
+        migrations.RenameField(model_name="post", old_name="isbn", new_name="id"),
     ]

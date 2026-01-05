@@ -37,14 +37,14 @@ class PostCreateSerializer(serializers.ModelSerializer):
     title = serializers.CharField(
         error_messages={
             "blank": "title field cannot be empty",
-            "required": "title field is required"
-            }
+            "required": "title field is required",
+        }
     )
     content = serializers.CharField(
         error_messages={
             "blank": "content field cannot be empty",
-            "required": "content field is required"
-            }
+            "required": "content field is required",
+        }
     )
 
     class Meta:
@@ -57,7 +57,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
             "is_published",
             "created_at",
         ]
-        read_only_fields = ['id', 'author', 'created_at']
+        read_only_fields = ["id", "author", "created_at"]
 
     def create(self, validated_data: Dict[str, str]):
         return Post.objects.create(**validated_data)
@@ -69,9 +69,10 @@ class PostCreateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class TopCommentListSerializer(serializers.ModelSerializer):
     excerpt = serializers.SerializerMethodField()
-    likes = serializers.IntegerField(read_only=True, source='like_count')
+    likes = serializers.IntegerField(read_only=True, source="like_count")
     reply_count = serializers.IntegerField(read_only=True)
 
     def get_excerpt(self, obj):
@@ -84,7 +85,7 @@ class TopCommentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'excerpt', 'likes', 'reply_count', 'created_at']
+        fields = ["id", "author", "excerpt", "likes", "reply_count", "created_at"]
         read_only_fields = fields
 
 
@@ -92,18 +93,17 @@ class PostDetailSerializer(serializers.ModelSerializer):
     top_comments = TopCommentListSerializer(many=True, read_only=True)
     comment_count = serializers.IntegerField(read_only=True)
     likes = serializers.IntegerField(read_only=True, source="like_count")
-    content = serializers.CharField(error_messages={
-        "blank": "content field cannot be empty"
-    })
-    title = serializers.CharField(error_messages={
-        "blank": "title field cannot be empty"
-    })
+    content = serializers.CharField(
+        error_messages={"blank": "content field cannot be empty"}
+    )
     title = serializers.CharField(
+        error_messages={"blank": "title field cannot be empty"}
+    )
+    is_published = serializers.BooleanField(
         required=False,
-        allow_blank=True,
-        error_messages={
-        "blank": "title field cannot be empty"
-    })
+        default=False,
+        error_messages={"blank": "is_published field cannot be empty"},
+    )
 
     class Meta:
         model = Post
@@ -119,7 +119,12 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = [
-            'id', 'author', 'created_at', 'likes', 'comment_count', 'top_comments'
+            "id",
+            "author",
+            "created_at",
+            "likes",
+            "comment_count",
+            "top_comments",
         ]
 
     def update(self, instance, validated_data):

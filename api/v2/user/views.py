@@ -10,6 +10,7 @@ from rest_framework.exceptions import NotFound
 
 User = get_user_model()
 
+
 class UserListAPIView(ListAPIView):
     """
     GET -> user: list all users
@@ -17,7 +18,7 @@ class UserListAPIView(ListAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by("email")
 
 
 class UserRetrieveAPIView(RetrieveAPIView):
@@ -27,8 +28,8 @@ class UserRetrieveAPIView(RetrieveAPIView):
 
     permission_classes = [IsAuthenticated, IsAdminOrSelf]
     serializer_class = UserSerializer
-    lookup_field = 'id'
-    lookup_url_kwarg = 'user_id'
+    lookup_field = "id"
+    lookup_url_kwarg = "user_id"
     queryset = User.objects.all()
 
 
@@ -36,6 +37,7 @@ class DisableUserAPIView(APIView):
     """
     POST -> user: disable a user
     """
+
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def post(self, request, user_id):
@@ -53,6 +55,7 @@ class EnableUserAPIView(APIView):
     """
     POST -> user: enable user
     """
+
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def post(self, request, user_id):

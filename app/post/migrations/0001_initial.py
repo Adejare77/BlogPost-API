@@ -17,15 +17,45 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('isbn', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('title', models.CharField(error_messages={'blank': 'title field cannot be empty', 'max_length': 'cannot accept more than 50 characters'}, max_length=100)),
-                ('content', models.TextField(error_messages={'blank': 'content field cannot be empty'})),
-                ('is_published', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('author', models.ForeignKey(error_messages={'required': 'author field is required'}, on_delete=django.db.models.deletion.CASCADE, related_name='posts', to=settings.AUTH_USER_MODEL)),
+                (
+                    "isbn",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        error_messages={
+                            "blank": "title field cannot be empty",
+                            "max_length": "cannot accept more than 50 characters",
+                        },
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "content",
+                    models.TextField(
+                        error_messages={"blank": "content field cannot be empty"}
+                    ),
+                ),
+                ("is_published", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "author",
+                    models.ForeignKey(
+                        error_messages={"required": "author field is required"},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

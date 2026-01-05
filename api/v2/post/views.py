@@ -1,12 +1,12 @@
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
-    ListAPIView
+    ListAPIView,
 )
 from api.v2.post.serializer import (
     PostCreateSerializer,
     PostListSerializer,
-    PostDetailSerializer
+    PostDetailSerializer,
 )
 from app.comment.models import Comment
 from app.post.models import Post
@@ -19,30 +19,26 @@ from app.core.permissions import (
     IsAuthenticated,
     IsAdminOrSelf,
     IsOwner,
-    DraftAccessPermission
+    DraftAccessPermission,
 )
 from app.post.service import get_accessible_posts_queryset
+
 
 class PostListCreateAPIView(ListCreateAPIView):
     """
     GET -> list: post (with pagination)
     POST -> create: post
     """
+
     pagination_class = PageNumberPagination
     filterset_class = PostFilter
 
     def get_queryset(self):
-        base_qs = (
-            Post.objects
-            .order_by('-created_at')
-            .annotate(
-                like_count=Count("likes", distinct=True),
-                comment_count=Count(
-                    "comments",
-                    filter=Q(comments__parent__isnull=True),
-                    distinct=True
-                )
-            )
+        base_qs = Post.objects.order_by("-created_at").annotate(
+            like_count=Count("likes", distinct=True),
+            comment_count=Count(
+                "comments", filter=Q(comments__parent__isnull=True), distinct=True
+            ),
         )
 
         user = self.request.user
@@ -52,12 +48,14 @@ class PostListCreateAPIView(ListCreateAPIView):
         return base_qs
 
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return [AllowAny(), DraftAccessPermission()]
         return [IsAuthenticated()]
 
     def get_serializer_class(self):
-        return PostListSerializer if self.request.method == 'GET' else PostCreateSerializer
+        return (
+            PostListSerializer if self.request.method == "GET" else PostCreateSerializer
+        )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -72,54 +70,45 @@ class PostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     serializer_class = PostDetailSerializer
     filterset_class = PostFilter
-    lookup_field = 'id'
-    lookup_url_kwarg='post_id'
+    lookup_field = "id"
+    lookup_url_kwarg = "post_id"
 
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return [AllowAny(), DraftAccessPermission()]
-        elif self.request.method == 'DELETE':
+        elif self.request.method == "DELETE":
             return [IsAuthenticated(), IsAdminOrSelf()]
         else:
             return [IsAuthenticated(), IsOwner()]
 
     def get_queryset(self):
         comments_qs = (
-            Comment.objects
-            .filter(post_id=self.kwargs["post_id"])
+            Comment.objects.filter(post_id=self.kwargs["post_id"])
             .annotate(
-                like_count=Count("likes", distinct=True),
-                reply_count=Count("replies")
+                like_count=Count("likes", distinct=True), reply_count=Count("replies")
             )
-            .order_by('-like_count', '-created_at')[:3]
+            .order_by("-like_count", "-created_at")[:3]
         )
 
-        return (
-            Post.objects
-            .prefetch_related(
-                Prefetch("comments", queryset=comments_qs, to_attr='top_comments')
-            )
-            .annotate(
-                like_count=Count("likes", distinct=True),
-                comment_count=Count('comments', distinct=True)
-            )
+        return Post.objects.prefetch_related(
+            Prefetch("comments", queryset=comments_qs, to_attr="top_comments")
+        ).annotate(
+            like_count=Count("likes", distinct=True),
+            comment_count=Count("comments", distinct=True),
         )
+
 
 class PopularPostListAPIView(ListAPIView):
     """
     GET -> list popular posts by likes and created_at
     """
+
     serializer_class = PostListSerializer
     permission_classes = [AllowAny]
 
-    queryset = (
-        Post.objects
-        .annotate(
-            like_count=Count("likes", distinct=True),
-            comment_count=Count(
-                "comments",
-                filter=Q(comments__parent__isnull=True),
-                distinct=True)
-        )
-        .order_by("-like_count", "-created_at")[:10]
-    )
+    queryset = Post.objects.annotate(
+        like_count=Count("likes", distinct=True),
+        comment_count=Count(
+            "comments", filter=Q(comments__parent__isnull=True), distinct=True
+        ),
+    ).order_by("-like_count", "-created_at")[:10]

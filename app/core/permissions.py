@@ -35,13 +35,13 @@ class IsAdminOrSelf(BasePermission):
         if request.user.is_staff:
             return True
 
-        if hasattr(obj, 'author'):
+        if hasattr(obj, "author"):
             if obj.author == request.user:
                 return True
 
             return False
 
-        if obj.id == request.user:
+        if obj.id == request.user.id:
             return True
 
         return False

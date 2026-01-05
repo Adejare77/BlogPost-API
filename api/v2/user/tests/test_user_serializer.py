@@ -1,39 +1,28 @@
-from rest_framework.test import force_authenticate
-from django.urls import reverse
 from api.v2.user.views import UserListAPIView, UserRetrieveAPIView
 from api.v2.user.serializer import UserSerializer
 
-def test_user_serializer_when_retrieving_returns_expected_fields(api_rf, users):
-    """GET -> retrieve user-profile: id, email, full_name"""
-    user_2 = users['user_2']
-    url = reverse('user-profile', args=[user_2.id])
-    request = api_rf.get(path=url)
-    force_authenticate(request=request, user=user_2)
-    view = UserRetrieveAPIView.as_view()
 
-    response = view(request, user_id=user_2.id)
+def test_user_serialization_when_retrieving_returns_expected_fields(users):
+    user = users["user_2"]
+    ser = UserSerializer(instance=user)
+    expected_fields = {"id", "email", "full_name"}
 
-    assert set(response.data.keys()) == {'id', 'email', 'full_name'}
+    assert expected_fields == set(ser.fields)
 
-def test_user_serializer_for_all_users_returns_expected_fields(api_rf, users):
-    """GET -> all users: [{id, email, full_name}, {...}]"""
-    admin = users['admin']
-    url = reverse('all-users')
-    request = api_rf.get(path=url)
-    force_authenticate(request=request, user=admin)
-    view = UserListAPIView.as_view()
 
-    response = view(request)
+def test_user_serializer_for_all_users_returns_expected_fields(users):
+    users = users.values()
+    ser = UserSerializer(instance=users, many=True)
+    expected_fields = {"id", "email", "full_name"}
 
-    assert isinstance(response.data['results'], list)
-    assert response.data['results']
+    for data in ser.data:
+        assert expected_fields == set(data.keys())
 
-    for item in response.data['results']:
-        assert isinstance(item, dict)
-        assert {'id', 'email', 'full_name'}.issubset(item.keys())
 
-def test_user_serializer_is_read_only(api_rf, users):
-    serializer = UserSerializer()
-    assert serializer.fields['id'].read_only
-    assert serializer.fields['email'].read_only
-    assert serializer.fields['full_name'].read_only
+def test_serializer_read_only_fields(api_rf, users):
+    ser = UserSerializer()
+    writable_fields = {
+        name for name, field in ser.fields.items() if not field.read_only
+    }
+
+    assert writable_fields == set()

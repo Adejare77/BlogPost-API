@@ -1,19 +1,20 @@
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
+
 def get_accessible_posts_queryset(user, base_qs, query_params):
     """
     Returns queryset containing ONLY posts the user can access.
     Raises exceptions for permission violations
     """
     authenticated = user.is_authenticated
-    status = query_params.get('status')
-    author = query_params.get('author')
+    status = query_params.get("status")
+    author = query_params.get("author")
 
     if authenticated and user.is_staff:
         return base_qs
 
-    if not authenticated and author == 'me':
-        raise NotAuthenticated('Authentication credentials were not provided.')
+    if not authenticated and author == "me":
+        raise NotAuthenticated("Authentication credentials were not provided.")
 
     if not status:
         return base_qs.filter(is_published=True)
