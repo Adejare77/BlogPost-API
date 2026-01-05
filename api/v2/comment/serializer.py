@@ -31,33 +31,23 @@ class CommentListSerializer(serializers.ModelSerializer):
             return obj.content
         return Truncator(obj.content).words(30, truncate=" ...")
 
+
 class CommentCreateSerializer(serializers.ModelSerializer):
-    content = serializers.CharField(error_messages={
-        "required": "content field is required",
-        "blank": "content field cannot be empty",
-    })
+    content = serializers.CharField(
+        error_messages={
+            "required": "content field is required",
+            "blank": "content field cannot be empty",
+        }
+    )
 
     class Meta:
         model = Comment
-        fields = [
-            'id',
-            'author',
-            'post_id',
-            'content',
-            'created_at'
-            ]
-        read_only_fields = ['id', 'author', 'post_id', 'created_at']
-
+        fields = ["id", "author", "post_id", "content", "created_at"]
+        read_only_fields = ["id", "author", "post_id", "created_at"]
 
     def create(self, validated_data: Dict[str, str]):
         return Comment.objects.create(**validated_data)
 
-    # def update(self, instance, validated_data: Dict[str, str]):
-    #     for k, v in validated_data.items():
-    #         setattr(instance, k, v)
-
-    #     instance.save()
-    #     return instance
 
 class ReplyListSerializer(serializers.ModelSerializer):
     excerpt = serializers.SerializerMethodField()
@@ -79,6 +69,9 @@ class CommentDetailSerializer(serializers.ModelSerializer):
     top_replies = ReplyListSerializer(many=True, read_only=True)
     reply_count = serializers.IntegerField(read_only=True)
     likes = serializers.IntegerField(read_only=True, source="like_count")
+    content = serializers.CharField(
+        error_messages={"blank": "content field cannot be empty"}
+    )
 
     class Meta:
         model = Comment
@@ -92,10 +85,15 @@ class CommentDetailSerializer(serializers.ModelSerializer):
             "likes",
             "created_at",
         ]
-        read_only_fields = ['id', 'author', 'post_id', 'top_replies', 'reply_count', 'likes', 'created_at']
-
-    # def create(self, validated_data):
-    #     return Comment.objects.create(**validated_data)
+        read_only_fields = [
+            "id",
+            "author",
+            "post_id",
+            "top_replies",
+            "reply_count",
+            "likes",
+            "created_at",
+        ]
 
     def update(self, instance, validated_data: Dict[str, str]):
         for k, v in validated_data.items():
@@ -103,6 +101,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
 
 class ReplyCreateSerializer(serializers.ModelSerializer):
     content = serializers.CharField(
@@ -114,14 +113,8 @@ class ReplyCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = [
-            'id',
-            'author',
-            'content',
-            'parent',
-            'created_at'
-            ]
-        read_only_fields = ['id', 'author', 'parent', 'created_at']
+        fields = ["id", "author", "content", "parent", "created_at"]
+        read_only_fields = ["id", "author", "parent", "created_at"]
 
     def create(self, validated_data: Dict[str, str]):
         return Comment.objects.create(**validated_data)
@@ -136,16 +129,11 @@ class ReplyCreateSerializer(serializers.ModelSerializer):
 
 class ReplyDetailSerializer(serializers.ModelSerializer):
     likes = serializers.IntegerField(read_only=True, source="like_count")
+    content = serializers.CharField(
+        error_messages={"blank": "content field cannot be empty"}
+    )
 
     class Meta:
         model = Comment
-        fields = [
-            "id",
-            "author",
-            "content",
-            "parent",
-            "likes",
-            "created_at"
-        ]
-        read_only_fields = ['id', 'author', 'parent', 'likes', 'creaated_at']
-
+        fields = ["id", "author", "content", "parent", "likes", "created_at"]
+        read_only_fields = ["id", "author", "parent", "likes", "creaated_at"]
