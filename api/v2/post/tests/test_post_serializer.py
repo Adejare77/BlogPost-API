@@ -84,7 +84,6 @@ class TestPostCreateSerializer:
             "author",
             "content",
             "title",
-            "is_published",
             "created_at",
         }
 
@@ -103,7 +102,6 @@ class TestPostListSerializer:
             "excerpt",
             "likes",
             "comment_count",
-            "is_published",
             "created_at",
         }
 
