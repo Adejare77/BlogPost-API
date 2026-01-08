@@ -27,7 +27,6 @@ class PostListSerializer(serializers.ModelSerializer):
             "excerpt",
             "likes",
             "comment_count",
-            "is_published",
             "created_at",
         ]
         read_only_fields = fields
@@ -103,6 +102,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         required=False,
         default=False,
         error_messages={"blank": "is_published field cannot be empty"},
+        write_only=True
     )
 
     class Meta:
@@ -112,8 +112,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "author",
             "title",
             "content",
-            "is_published",
             "likes",
+            "is_published",
             "comment_count",
             "top_comments",
             "created_at",
