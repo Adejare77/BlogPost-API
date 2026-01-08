@@ -19,14 +19,14 @@ def get_accessible_posts_queryset(user, base_qs, query_params):
     if not status:
         return base_qs.filter(is_published=True)
 
-    if status.strip().lower() in ("all", "draft"):
+    if status in ("all", "draft"):
         if not authenticated:
             raise NotAuthenticated("Authentication credentials were not provided.")
 
         if not author:
             return base_qs.filter(author=user)
 
-        if author.strip().lower() != "me":
+        if author != "me":
             raise PermissionDenied("You do not have permission to perform this action.")
 
     return base_qs
