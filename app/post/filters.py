@@ -3,12 +3,17 @@ from app.post.models import Post
 
 
 class PostFilter(filters.FilterSet):
+    STATUS_CHOICES = [
+        ('draft', 'Drafts only'),
+        ('published', 'Published posts only (default)'),
+        ('all', 'All posts (drafts and published posts)')
+    ]
     author = filters.CharFilter(method="filter_author")
-    status = filters.CharFilter(method="filter_status")
+    status = filters.ChoiceFilter(method="filter_status", choices=STATUS_CHOICES)
 
     class Meta:
         model = Post
-        fields = ["author", "is_published"]
+        fields = ["author", "status"]
 
     def filter_status(self, queryset, name, value):
         value = value.strip().lower()
