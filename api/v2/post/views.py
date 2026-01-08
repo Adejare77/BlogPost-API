@@ -12,8 +12,7 @@ from app.comment.models import Comment
 from app.post.models import Post
 from rest_framework.pagination import PageNumberPagination
 from app.post.filters import PostFilter
-from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from django.db.models import Count, Q, Prefetch
 from app.core.permissions import (
     IsAuthenticated,
@@ -26,7 +25,7 @@ from app.post.service import get_accessible_posts_queryset
 
 class PostListCreateAPIView(ListCreateAPIView):
     """
-    GET -> list: post (with pagination)
+    GET -> list: posts (with pagination)
     POST -> create: post
     """
 
