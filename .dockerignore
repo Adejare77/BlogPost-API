@@ -1,0 +1,4 @@
+api/*
+
+!api/v1
+!api/v2
