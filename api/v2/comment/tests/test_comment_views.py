@@ -4,8 +4,6 @@ from api.v2.comment.views import (
     ReplyListCreateAPIView,
     ReplyRetrieveUpdateDestroyAPIView,
 )
-from app.post.models import Post
-from app.comment.models import Comment
 from django.contrib.auth import get_user_model
 from rest_framework.test import force_authenticate
 from django.urls import reverse
