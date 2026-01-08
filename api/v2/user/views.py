@@ -6,6 +6,7 @@ from api.v2.user.serializer import UserSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound
+from drf_spectacular.utils import extend_schema
 
 
 User = get_user_model()
@@ -40,6 +41,7 @@ class DisableUserAPIView(APIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
 
+    @extend_schema(request=None, responses={204: None})
     def post(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
@@ -58,6 +60,7 @@ class EnableUserAPIView(APIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
 
+    @extend_schema(request=None, responses={204: None})
     def post(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
