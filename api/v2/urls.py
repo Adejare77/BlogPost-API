@@ -14,7 +14,10 @@ urlpatterns = [
     path("posts/", include("api.v2.post.urls")),
     path("users/", include("api.v2.user.urls")),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("schema/swagger/", SpectacularSwaggerView.as_view(url_name="v2:schema"), name="swagger"),
+    path(
+        "schema/swagger/",
+        SpectacularSwaggerView.as_view(url_name="v2:schema"),
+        name="swagger",
+    ),
     path("redoc/", SpectacularRedocView.as_view(url_name="v2:schema"), name="redoc"),
-
 ]
