@@ -102,7 +102,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         required=False,
         default=False,
         error_messages={"blank": "is_published field cannot be empty"},
-        write_only=True
+        write_only=True,
     )
 
     class Meta:
