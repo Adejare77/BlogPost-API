@@ -4,9 +4,9 @@ from app.post.models import Post
 
 class PostFilter(filters.FilterSet):
     STATUS_CHOICES = [
-        ('draft', 'Drafts only'),
-        ('published', 'Published posts only (default)'),
-        ('all', 'All posts (drafts and published posts)')
+        ("draft", "Drafts only"),
+        ("published", "Published posts only (default)"),
+        ("all", "All posts (drafts and published posts)"),
     ]
     author = filters.CharFilter(method="filter_author")
     status = filters.ChoiceFilter(method="filter_status", choices=STATUS_CHOICES)
