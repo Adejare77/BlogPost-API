@@ -1,10 +1,10 @@
+from django.db.models import Q
 from django.urls import reverse
 from rest_framework import status
-from app.post.models import Post
-from app.comment.models import Comment
-from django.db.models import Q
 
-from api.v2.tests.constants import UNAUTHORIZED, FORBIDDEN
+from api.v2.tests.constants import FORBIDDEN, UNAUTHORIZED
+from app.comment.models import Comment
+from app.post.models import Post
 
 
 class TestPostListCreateAPIView:
@@ -174,10 +174,6 @@ class TestPostListCreateAPIView:
 
         for data in response.data["results"]:
             assert data["author"] == users[0].id
-
-    def test_get_posts_by_admin_returns_200(self, published_posts, admin_client):
-        url = reverse("v2:posts")
-        assert admin_client.get(url).status_code == status.HTTP_200_OK
 
     def test_get_posts_by_admin_returns_200(self, published_posts, admin_client):
         url = reverse("v2:posts")

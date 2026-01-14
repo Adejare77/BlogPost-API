@@ -62,7 +62,7 @@ class DraftAccessPermission(BasePermission):
     message = "You do not have permission to perform this action."
 
     def has_object_permission(self, request, view, obj):
-        if obj.is_published == True:
+        if obj.is_published:
             return True
 
         user = request.user

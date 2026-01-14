@@ -1,3 +1,6 @@
+import pytest
+from rest_framework import serializers
+
 from api.v2.comment.serializer import (
     CommentCreateSerializer,
     CommentDetailSerializer,
@@ -6,11 +9,6 @@ from api.v2.comment.serializer import (
     ReplyDetailSerializer,
     ReplyListSerializer,
 )
-
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from app.comment.models import Comment
-import pytest
 
 
 class TestCommentCreateSerializer:

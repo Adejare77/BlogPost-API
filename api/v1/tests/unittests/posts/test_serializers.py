@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
-from app.post.models import Post
 from api.v1.post.serializer import PostDetailSerializer, PostListSerializer
+from app.post.models import Post
 
 
 class TestPostListSerializer(APITestCase):

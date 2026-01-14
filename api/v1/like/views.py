@@ -4,10 +4,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from api.v1.like.serializers import LikeSerializer
 from app.comment.models import Comment
 from app.core.permissions import IsAuthenticated
 from app.like.models import Like
-from api.v1.like.serializers import LikeSerializer
 from app.post.models import Post
 
 

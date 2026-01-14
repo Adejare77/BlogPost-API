@@ -1,9 +1,9 @@
 from django.urls import path
 
 from api.v2.post.views import (
+    PopularPostListAPIView,
     PostListCreateAPIView,
     PostRetrieveUpdateDestroyAPIView,
-    PopularPostListAPIView,
 )
 
 urlpatterns = [

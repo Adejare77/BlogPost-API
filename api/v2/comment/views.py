@@ -1,19 +1,20 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.exceptions import NotFound
-from app.comment.models import Comment
-from app.post.models import Post
 from django.db.models import Count, Prefetch
-from rest_framework.permissions import AllowAny
-from app.core.permissions import IsAdminOrSelf, IsAuthenticated, IsOwner
+from rest_framework.exceptions import NotFound
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
+
 from api.v2.comment.serializer import (
     CommentCreateSerializer,
     CommentDetailSerializer,
     CommentListSerializer,
     ReplyCreateSerializer,
-    ReplyListSerializer,
     ReplyDetailSerializer,
+    ReplyListSerializer,
 )
+from app.comment.models import Comment
+from app.core.permissions import IsAdminOrSelf, IsAuthenticated, IsOwner
+from app.post.models import Post
 
 
 class CommentListCreateAPIView(ListCreateAPIView):
@@ -52,8 +53,8 @@ class CommentListCreateAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         try:
             post = Post.objects.get(id=self.kwargs["post_id"])
-        except Post.DoesNotExist:
-            raise NotFound("Post not found.")
+        except Post.DoesNotExist as err:
+            raise NotFound("Post not found.") from err
 
         serializer.save(post=post, author=self.request.user)
 

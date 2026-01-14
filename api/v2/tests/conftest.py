@@ -1,9 +1,10 @@
 import factory
 import pytest
+from rest_framework.test import APIClient
+
+from api.v2.tests.factories.comment_factory import CommentFactory
 from api.v2.tests.factories.post_factory import PostFactory
 from api.v2.tests.factories.user_factory import UserFactory
-from api.v2.tests.factories.comment_factory import CommentFactory
-from rest_framework.test import APIClient
 
 
 @pytest.fixture

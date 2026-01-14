@@ -1,16 +1,16 @@
+import uuid
+
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import force_authenticate
+
+from api.v2.comment.tests.constants import FORBIDDEN, UNAUTHORIZED
 from api.v2.comment.views import (
     CommentListCreateAPIView,
     CommentRetrieveUpdateDestroyAPIView,
     ReplyListCreateAPIView,
     ReplyRetrieveUpdateDestroyAPIView,
 )
-from django.contrib.auth import get_user_model
-from rest_framework.test import force_authenticate
-from django.urls import reverse
-from rest_framework import status
-from api.v2.comment.tests.constants import UNAUTHORIZED, FORBIDDEN
-import uuid
-
 
 # ============================ CommentListCreateAPIView ===================
 

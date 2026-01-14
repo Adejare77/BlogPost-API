@@ -1,15 +1,14 @@
 from django.urls import reverse
-from rest_framework.test import force_authenticate
 from rest_framework import status
+from rest_framework.test import force_authenticate
 
+from api.v2.user.tests.constants import FORBIDDEN, UNAUTHORIZED
 from api.v2.user.views import (
-    UserListAPIView,
-    UserRetrieveAPIView,
     DisableUserAPIView,
     EnableUserAPIView,
+    UserListAPIView,
+    UserRetrieveAPIView,
 )
-
-from api.v2.user.tests.constants import UNAUTHORIZED, FORBIDDEN
 
 
 # ============================ Test UserListAPIView ==============================

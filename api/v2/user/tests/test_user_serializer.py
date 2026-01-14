@@ -1,4 +1,3 @@
-from api.v2.user.views import UserListAPIView, UserRetrieveAPIView
 from api.v2.user.serializer import UserSerializer
 
 

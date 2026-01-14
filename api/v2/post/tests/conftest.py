@@ -1,10 +1,11 @@
 import pytest
 from django.contrib.auth import get_user_model
-from app.post.models import Post
-from app.comment.models import Comment
-from app.like.models import Like
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.test import APIRequestFactory
+
+from app.comment.models import Comment
+from app.like.models import Like
+from app.post.models import Post
 
 
 @pytest.fixture

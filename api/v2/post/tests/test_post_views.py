@@ -1,13 +1,13 @@
-from app.post.models import Post
-from api.v2.post.views import (
-    PostListCreateAPIView,
-    PostRetrieveUpdateDestroyAPIView,
-    PopularPostListAPIView,
-)
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import force_authenticate
-from api.v2.post.tests.constants import UNAUTHORIZED, FORBIDDEN
+
+from api.v2.post.tests.constants import FORBIDDEN, UNAUTHORIZED
+from api.v2.post.views import (
+    PopularPostListAPIView,
+    PostListCreateAPIView,
+    PostRetrieveUpdateDestroyAPIView,
+)
 
 # =================== PostListCreateAPIView ========================
 

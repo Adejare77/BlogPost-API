@@ -1,23 +1,23 @@
-from django.db.models import Count, Prefetch, Value, Q
+from django.db.models import Count, Prefetch, Q, Value
 from django.db.models.functions import Concat, Substr
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
+from api.v1.post.serializer import PostDetailSerializer, PostListSerializer
 from app.comment.models import Comment
 from app.core.permissions import (
     AllowAnyForGetRequireAuthForWrite,
-    IsAdminOrSelf,
     DraftAccessPermission,
+    IsAdminOrSelf,
 )
 from app.post.filters import PostFilter
 from app.post.models import Post
-from api.v1.post.serializer import PostDetailSerializer, PostListSerializer
 from app.post.service import get_accessible_posts_queryset
 
 
@@ -91,7 +91,7 @@ def post_detail(request: Request, post_id):
                 .get(id=post_id)
             )
 
-            if post.is_published == False and not request.user.is_authenticated:
+            if not post.is_published and not request.user.is_authenticated:
                 raise NotAuthenticated("Authentication credentials were not provided.")
 
             permission = DraftAccessPermission()

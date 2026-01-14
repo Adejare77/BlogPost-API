@@ -5,8 +5,8 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from app.core.permissions import IsAdminOrSelf, IsAdminUser, IsAuthenticated
 from api.v1.user.serializer import UserSerializer
+from app.core.permissions import IsAdminOrSelf, IsAdminUser, IsAuthenticated
 
 User = get_user_model()
 

@@ -1,10 +1,10 @@
 from django.urls import path
 
 from api.v2.user.views import (
+    DisableUserAPIView,
+    EnableUserAPIView,
     UserListAPIView,
     UserRetrieveAPIView,
-    EnableUserAPIView,
-    DisableUserAPIView,
 )
 
 urlpatterns = [

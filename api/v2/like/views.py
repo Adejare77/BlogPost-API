@@ -1,12 +1,13 @@
-from rest_framework.views import APIView
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from app.core.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
 from app.comment.models import Comment
-from app.post.models import Post
+from app.core.permissions import IsAuthenticated
 from app.like.models import Like
-from django.contrib.contenttypes.models import ContentType
+from app.post.models import Post
 
 
 class LikePostAPIView(APIView):
@@ -20,8 +21,8 @@ class LikePostAPIView(APIView):
     def post(self, request, post_id):
         try:
             post = Post.objects.get(id=post_id)
-        except Post.DoesNotExist:
-            raise NotFound("Post not found.")
+        except Post.DoesNotExist as err:
+            raise NotFound("Post not found.") from err
 
         content_type = ContentType.objects.get_for_model(Post)
 
@@ -36,8 +37,8 @@ class LikePostAPIView(APIView):
     def delete(self, request, post_id):
         try:
             post = Post.objects.get(id=post_id)
-        except Post.DoesNotExist:
-            raise NotFound("Post not found.")
+        except Post.DoesNotExist as err:
+            raise NotFound("Post not found.") from err
 
         content_type = ContentType.objects.get_for_model(Post)
 
@@ -62,8 +63,8 @@ class LikeCommentAPIView(APIView):
     def post(self, request, comment_id):
         try:
             post = Comment.objects.get(id=comment_id)
-        except Comment.DoesNotExist:
-            raise NotFound("Comment not found.")
+        except Comment.DoesNotExist as err:
+            raise NotFound("Comment not found.") from err
 
         content_type = ContentType.objects.get_for_model(Comment)
 
@@ -78,8 +79,8 @@ class LikeCommentAPIView(APIView):
     def delete(self, request, comment_id):
         try:
             comment = Comment.objects.get(id=comment_id)
-        except Comment.DoesNotExist:
-            raise NotFound("Comment not found.")
+        except Comment.DoesNotExist as err:
+            raise NotFound("Comment not found.") from err
 
         content_type = ContentType.objects.get_for_model(Comment)
 

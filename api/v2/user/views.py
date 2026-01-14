@@ -1,13 +1,13 @@
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.views import APIView
-from app.core.permissions import IsAuthenticated, IsAdminUser, IsAdminOrSelf
 from django.contrib.auth import get_user_model
-from api.v2.user.serializer import UserSerializer
-from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.exceptions import NotFound
-from drf_spectacular.utils import extend_schema
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from api.v2.user.serializer import UserSerializer
+from app.core.permissions import IsAdminOrSelf, IsAdminUser, IsAuthenticated
 
 User = get_user_model()
 
@@ -45,8 +45,8 @@ class DisableUserAPIView(APIView):
     def post(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
-        except get_user_model().DoesNotExist:
-            raise NotFound("User not found.")
+        except get_user_model().DoesNotExist as err:
+            raise NotFound("User not found.") from err
 
         user.is_active = False
         user.save()
@@ -64,8 +64,8 @@ class EnableUserAPIView(APIView):
     def post(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
-        except get_user_model().DoesNotExist:
-            raise NotFound("User not found.")
+        except get_user_model().DoesNotExist as err:
+            raise NotFound("User not found.") from err
 
         user.is_active = True
         user.save()

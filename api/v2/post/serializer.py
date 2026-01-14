@@ -1,10 +1,10 @@
 from typing import Dict
 
+from django.utils.text import Truncator
 from rest_framework import serializers
 
 from app.comment.models import Comment
 from app.post.models import Post
-from django.utils.text import Truncator
 
 
 class PostListSerializer(serializers.ModelSerializer):

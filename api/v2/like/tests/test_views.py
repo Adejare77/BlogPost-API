@@ -1,9 +1,10 @@
-from api.v2.like.views import LikePostAPIView, LikeCommentAPIView
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import force_authenticate
-from app.like.models import Like
+
 from api.v2.like.tests.constants import UNAUTHORIZED
+from api.v2.like.views import LikeCommentAPIView, LikePostAPIView
+from app.like.models import Like
 
 
 def test_like_post_when_unauthenticated_returns_401(posts, api_rf):

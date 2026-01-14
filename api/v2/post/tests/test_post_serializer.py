@@ -1,13 +1,13 @@
+import pytest
+from django.contrib.auth import get_user_model
+from rest_framework import serializers
+
 from api.v2.post.serializer import (
-    PostListSerializer,
     PostCreateSerializer,
     PostDetailSerializer,
+    PostListSerializer,
 )
-
 from app.post.models import Post
-from django.contrib.auth import get_user_model
-import pytest
-from rest_framework import serializers
 
 
 class TestPostCreateSerializer:
@@ -54,7 +54,7 @@ class TestPostCreateSerializer:
 
         post = serializer.save(author=users["user_1"])
 
-        assert post.is_published == False
+        assert not post.is_published
 
     def test_is_published_only_accepts_bool(self):
         data = {

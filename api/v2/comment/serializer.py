@@ -1,10 +1,9 @@
 from typing import Dict
 
+from django.utils.text import Truncator
 from rest_framework import serializers
 
 from app.comment.models import Comment
-
-from django.utils.text import Truncator
 
 
 class CommentListSerializer(serializers.ModelSerializer):
