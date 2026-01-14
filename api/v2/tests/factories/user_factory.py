@@ -9,7 +9,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
         skip_postgeneration_save = True
 
-    full_name = factory.Faker("name", max_nb_chars=20)
+    full_name = factory.Faker("name")
     email = factory.Sequence(lambda n: f"user_{n}@gmail.com")
 
     @factory.post_generation
