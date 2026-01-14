@@ -10,6 +10,8 @@ django-redis==6.0.0
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
 drf-spectacular==0.29.0
+factory_boy==3.3.3
+Faker==40.1.0
 flake8==7.3.0
 gunicorn==23.0.0
 inflection==0.5.1
@@ -38,4 +40,5 @@ referencing==0.37.0
 rpds-py==0.29.0
 sqlparse==0.5.3
 typing_extensions==4.15.0
+tzdata==2025.3
 uritemplate==4.2.0
