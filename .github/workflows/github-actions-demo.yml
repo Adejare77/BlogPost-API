@@ -26,7 +26,7 @@ jobs:
           --health-timeout 5s
 
     env:
-      DATABASE_URL: postgres://test_db:test_password@localhost:5432/test_db
+      DATABASE_URL: postgres://test_user:test_password@localhost:5432/test_db
       TESTING: false
       DEBUG: false
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
