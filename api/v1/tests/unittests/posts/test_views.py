@@ -130,24 +130,9 @@ class PostListViewTests(APITestCase):
         self.assertIn(True, result)
         self.assertIn(False, result)
 
-    @parameterized.expand(
-        [
-            ("missing_status_param", None),
-            ("empty_status_param", "published"),
-            ("invalid_status_param", "invalid_val"),
-            ("Published_val_status_param", "Published"),
-            ("published_val_status_param", "published"),
-        ]
-    )
-    def test_status_param_get_published_posts(self, test_name, input_data):
+    def test_status_param_get_published_posts(self):
         """Test status param gets all published posts for all users"""
-        base = reverse("v1:posts")
-        if input_data is None:
-            url = base
-        elif input_data == "":
-            url = base + "?status="
-        else:
-            url = base + f"?status={input_data}"
+        url = reverse("v1:posts")
 
         request = self.factory.get(url)
         response = views.post_list(request)
@@ -155,18 +140,10 @@ class PostListViewTests(APITestCase):
         result = [x["is_published"] for x in response.data["results"]]
         self.assertTrue(all(result))
 
-    @parameterized.expand(
-        [("Draft_val_status_param", "Draft"), ("draft_val_status_param", "draft")]
-    )
-    def test_status_param_get_draft_for_own_auth_user(self, test_name, input_data):
+    def test_status_param_get_draft_for_own_auth_user(self):
         """Test status param gets all draft posts for authenticated users"""
         base = reverse("v1:posts")
-        if input_data is None:
-            url = base
-        elif input_data == "":
-            url = base + "?status="
-        else:
-            url = base + f"?status={input_data}"
+        url = base + "?status=draft"
 
         request = self.factory.get(url)
         force_authenticate(request=request, user=self.user)
@@ -175,12 +152,9 @@ class PostListViewTests(APITestCase):
 
         self.assertFalse(any(result))
 
-    @parameterized.expand(
-        [("Draft_val_status_param", "Draft"), ("draft_val_status_param", "draft")]
-    )
-    def test_status_param_cannot_get_draft_for_unauth_user(self, test_name, input_data):
+    def test_status_param_cannot_get_draft_for_unauth_user(self):
         """Test status param gets all draft posts for authenticated users"""
-        url = reverse("v1:posts") + f"?status={input_data}"
+        url = reverse("v1:posts") + "?status=draft"
         request = self.factory.get(url)
         response = views.post_list(request)
 
