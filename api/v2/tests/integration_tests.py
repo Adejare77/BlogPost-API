@@ -760,108 +760,110 @@ class TestReplyRetrieveUpdateDestroyAPIView:
 
 class TestUserListAPIView:
     def test_get_users_when_authenticated_returns_401(self, api_cl, users):
-        url = reverse('v2:all-users')
+        url = reverse("v2:all-users")
         response = api_cl.get(path=url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data['detail'] == UNAUTHORIZED
+        assert response.data["detail"] == UNAUTHORIZED
 
     def test_get_users_as_user_returns_403(self, users, user_client):
-        url = reverse('v2:all-users')
+        url = reverse("v2:all-users")
         response = user_client.get(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == FORBIDDEN
+        assert response.data["detail"] == FORBIDDEN
 
     def test_get_users_as_admin_returns_200(self, users, admin_client):
-        url = reverse('v2:all-users')
+        url = reverse("v2:all-users")
         response = admin_client.get(path=url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['results']
+        assert response.data["results"]
 
 
 class TestUserRetrieveAPIView:
     def test_retrieve_user_profile_when_authenticated_returns_401(self, users, api_cl):
-        url = reverse('v2:user-profile', args=[users[0].id])
+        url = reverse("v2:user-profile", args=[users[0].id])
         response = api_cl.get(path=url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data['detail'] == UNAUTHORIZED
+        assert response.data["detail"] == UNAUTHORIZED
 
     def test_retrieve_user_profile_as_user_returns_200(self, users, user_client):
-        url = reverse('v2:user-profile', args=[users[0].id])
+        url = reverse("v2:user-profile", args=[users[0].id])
         response = user_client.get(path=url)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data
 
     def test_retrieve_non_owner_profile_as_user_returns_403(self, users, user_client):
-        url = reverse('v2:user-profile', args=[users[1].id])
+        url = reverse("v2:user-profile", args=[users[1].id])
         response = user_client.get(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == FORBIDDEN
+        assert response.data["detail"] == FORBIDDEN
 
     def test_retrieve_user_profile_as_admin_returns_200(self, users, admin_client):
-        url = reverse('v2:user-profile', args=[users[0].id])
+        url = reverse("v2:user-profile", args=[users[0].id])
         response = admin_client.get(path=url)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data
 
+
 class TestDisableUserAPIView:
     def test_disable_user_when_unauthenticated_returns_401(self, users, api_cl):
-        url = reverse('v2:disable-account', args=[users[0].id])
+        url = reverse("v2:disable-account", args=[users[0].id])
         response = api_cl.post(path=url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data['detail'] == UNAUTHORIZED
+        assert response.data["detail"] == UNAUTHORIZED
 
     def test_disable_user_as_user_returns_403(self, users, user_client):
-        url = reverse('v2:disable-account', args=[users[0].id])
+        url = reverse("v2:disable-account", args=[users[0].id])
         response = user_client.post(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == FORBIDDEN
+        assert response.data["detail"] == FORBIDDEN
 
     def test_disable_non_owner_user_as_user_returns_403(self, users, user_client):
-        url = reverse('v2:disable-account', args=[users[2].id])
+        url = reverse("v2:disable-account", args=[users[2].id])
         response = user_client.post(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == FORBIDDEN
+        assert response.data["detail"] == FORBIDDEN
 
     def test_disable_user_as_admin_returns_204(self, users, admin_client):
-        url = reverse('v2:disable-account', args=[users[0].id])
+        url = reverse("v2:disable-account", args=[users[0].id])
         response = admin_client.post(path=url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
+
 class TestEnableUserAPIView:
     def test_enable_user_when_unauthenticated_returns_401(self, users, api_cl):
-        url = reverse('v2:enable-account', args=[users[0].id])
+        url = reverse("v2:enable-account", args=[users[0].id])
         response = api_cl.post(path=url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data['detail'] == UNAUTHORIZED
+        assert response.data["detail"] == UNAUTHORIZED
 
     def test_enable_user_as_user_returns_403(self, users, user_client):
-        url = reverse('v2:enable-account', args=[users[0].id])
+        url = reverse("v2:enable-account", args=[users[0].id])
         response = user_client.post(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == FORBIDDEN
+        assert response.data["detail"] == FORBIDDEN
 
     def test_enable_non_owner_user_as_user_returns_403(self, users, user_client):
-        url = reverse('v2:enable-account', args=[users[2].id])
+        url = reverse("v2:enable-account", args=[users[2].id])
         response = user_client.post(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == FORBIDDEN
+        assert response.data["detail"] == FORBIDDEN
 
     def test_enable_user_as_admin_returns_204(self, users, admin_client):
-        url = reverse('v2:enable-account', args=[users[0].id])
+        url = reverse("v2:enable-account", args=[users[0].id])
         response = admin_client.post(path=url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
