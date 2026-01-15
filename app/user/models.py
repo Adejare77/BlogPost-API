@@ -31,7 +31,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    full_name = models.CharField(blank=False, null=False)
+    full_name = models.CharField(max_length=100, blank=False, null=False)
     email = models.EmailField(unique=True, blank=False)
     username = models.CharField(
         unique=True, null=True, blank=True, help_text="only for super users"
