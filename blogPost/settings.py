@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "app.like",
     "app.comment",
     "app.utils",
+    "rest_framework_simplejwt.token_blacklist"
 ]
 
 MIDDLEWARE = [
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "app.core.middleware.logging.RequestResponseLoggingMiddleware"
 ]
 
 ROOT_URLCONF = "blogPost.urls"
@@ -99,6 +101,9 @@ if env("TESTING"):
     DATABASES = {
         "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
     }
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher"
+    ]
 else:
     DATABASES = {"default": env.db()}  # reads all in the .env
 
@@ -154,9 +159,13 @@ APPEND_SLASH = True
 
 # Simple JWT settings
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
-    # 'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    # 'ROTATE_REFRESH_TOKENS': True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -164,4 +173,65 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API for Post, Comments",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "standard": {
+            "format": "[{levelname}] {asctime} {name}: {message}",
+            "style": "{"
+        },
+        "json": {
+            "()": "pythonjsonlogger.json.JsonFormatter",
+            "format": "%(levelname)s %(asctime)s %(name)s: %(message)s"
+        }
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard"
+        },
+        "api_file": {
+            "class": "logging.FileHandler",
+            "formatter": "json",
+            "filename": "logs/api.log",
+        },
+        "error_file": {
+            "class": "logging.FileHandler",
+            "formatter": "json",
+            "filename": "logs/error.log",
+        },
+        "django_file": {
+            "class": "logging.FileHandler",
+            "formatter": "json",
+            "filename": "logs/django.log",
+        }
+    },
+
+    "loggers": {
+        "django": {
+            "handlers": ["console", "django_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console", "error_file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "api": {
+            "handlers": ["console", "api_file"],
+            "level": "INFO",
+            "propagate": False,
+        }
+    },
+
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO"
+    }
 }
