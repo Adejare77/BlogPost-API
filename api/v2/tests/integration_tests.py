@@ -1,5 +1,7 @@
 from django.db.models import Q
 from django.urls import reverse
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from rest_framework import status
 
 from api.v2.tests.constants import FORBIDDEN, UNAUTHORIZED
@@ -863,3 +865,39 @@ class TestEnableUserAPIView:
         response = admin_client.post(path=url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
+
+class TestCreateUserAPIView:
+    def test_register_user_returns_201(self, db, api_cl):
+        url = reverse("v2:sign-up")
+        data = {
+            "full_name": "TESTING",
+            "email": 'testing@gmail.com',
+            "password": 'testing123'
+        }
+        response = api_cl.post(path=url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+class TestLogoutAPIView:
+    def test_logout_blacklist_refresh_token(self, api_cl, users):
+        user = users[3]
+
+        refresh = RefreshToken.for_user(user)
+        access_token = refresh.access_token
+        api_cl.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+
+        url = reverse('v2:logout')
+        response = api_cl.post(
+            path=url,
+            data={'refresh_token': str(refresh)},
+            format='json'
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert BlacklistedToken.objects.filter(token__jti=refresh["jti"]).exists()
+
+        assert "access_token" in response.cookies
+        assert response.cookies["access_token"]["max-age"] == 0
+
+        assert "refresh_token" in response.cookies
+        assert response.cookies['refresh_token']['max-age'] == 0
