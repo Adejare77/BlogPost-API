@@ -1,14 +1,16 @@
-from api.v2.auth.serializer import CustomTokenObtainPairSerializer, RegisterSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.generics import CreateAPIView
-from rest_framework.views import APIView
-from app.core.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from api.v2.auth.serializer import CustomTokenObtainPairSerializer, RegisterSerializer
+from app.core.permissions import IsAuthenticated
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -16,6 +18,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 class CreateUserAPIView(CreateAPIView):
     serializer_class = RegisterSerializer
+
 
 class LogoutAPIView(APIView):
     authentication_classes = [JWTAuthentication]
