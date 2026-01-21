@@ -8,8 +8,8 @@ from drf_spectacular.views import (
 app_name = "v2"
 
 urlpatterns = [
+    path("", include("api.v2.auth.urls")),
     path("", include("api.v2.comment.urls")),
-    path("", include("app.core.authentication.urls")),
     path("", include("api.v2.like.urls")),
     path("posts/", include("api.v2.post.urls")),
     path("users/", include("api.v2.user.urls")),
