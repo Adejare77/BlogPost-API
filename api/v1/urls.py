@@ -9,7 +9,7 @@ app_name = "v1"
 
 urlpatterns = [
     path("", include("api.v1.comment.urls")),
-    path("", include("app.core.authentication.urls")),
+    path("", include("api.v1.auth.urls")),
     path("", include("api.v1.like.urls")),
     path("posts/", include("api.v1.post.urls")),
     path("users/", include("api.v1.user.urls")),
