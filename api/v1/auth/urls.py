@@ -1,6 +1,6 @@
 from django.urls import path
 
-from app.core.authentication import views
+from api.v1.auth import views
 
 urlpatterns = [
     path("login/", views.EmailTokenObtainPairView.as_view(), name="login"),

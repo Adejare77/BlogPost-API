@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from app.core.authentication.serializers import (
+from api.v1.auth.serializers import (
     CustomTokenObtainPairSerializer,
     RegisterSerializer,
 )
