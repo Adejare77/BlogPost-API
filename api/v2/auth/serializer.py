@@ -1,9 +1,9 @@
 from django.contrib.auth import authenticate, get_user_model
-from django.contrib.auth.base_user import BaseUserManager
-from django.db import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+User = get_user_model()
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -27,7 +27,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         password = attrs.get("password")
-        email = BaseUserManager().normalize_email(email=attrs.get("email"))
+        email = attrs.get("email").lower().strip()
 
         user = authenticate(
             request=self.context.get("request"), username=email, password=password
@@ -70,14 +70,16 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = get_user_model()
-        # model = User
+        model = User
         fields = ["email", "password", "full_name"]
+        extra_kwargs = {
+            "password": {"write_only": True, "style": {"input_type": "password"}}
+        }
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value.lower().strip()).exists():
+            raise serializers.ValidationError("This email is already registered.")
+        return value
 
     def create(self, validated_data):
-        try:
-            return get_user_model().objects.create_user(**validated_data)
-        except IntegrityError as err:
-            raise serializers.ValidationError(
-                {"detail": "This email is already registered"}
-            ) from err
+        return User.objects.create_user(**validated_data)
