@@ -11,7 +11,7 @@ class UserManager(BaseUserManager):
             raise ValueError("The email field must be set")
 
         # normalize email(lowercase domain part e.g GMAIL.COM == gmail.com)
-        email = self.normalize_email(email)
+        email = self.normalize_email(email).lower().strip()
         # create user instance with email and extra_fields
         user = self.model(email=email, **extra_fields)
         # hash password
