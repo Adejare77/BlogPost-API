@@ -4,7 +4,7 @@ from rest_framework import serializers
 from api.v2.auth.serializer import RegisterSerializer
 
 
-def test_valid_data_validates_successfully():
+def test_valid_data_validates_successfully(db):
     data = {
         "full_name": "TESTING",
         "password": "testing123",
@@ -56,7 +56,7 @@ def test_register_with_missing_email_fails():
     assert "email field is required" in err.value.detail["email"][0]
 
 
-def test_register_with_empty_full_name_fails():
+def test_register_with_empty_full_name_fails(db):
     data = {
         "full_name": "",
         "password": "testing123",
@@ -71,7 +71,7 @@ def test_register_with_empty_full_name_fails():
     assert "full_name cannot be empty" in err.value.detail["full_name"][0]
 
 
-def test_register_with_missing_full_name_fails():
+def test_register_with_missing_full_name_fails(db):
     data = {"password": "testing123", "email": "testing@gmail.com"}
     serializer = RegisterSerializer(data=data)
 
@@ -81,7 +81,7 @@ def test_register_with_missing_full_name_fails():
     assert "full_name field is required" in err.value.detail["full_name"][0]
 
 
-def test_register_with_empty_password_fails():
+def test_register_with_empty_password_fails(db):
     data = {
         "full_name": "TESTING",
         "password": "",
@@ -96,7 +96,7 @@ def test_register_with_empty_password_fails():
     assert "password cannot be empty" in err.value.detail["password"][0]
 
 
-def test_register_with_missing_password_fails():
+def test_register_with_missing_password_fails(db):
     data = {"full_name": "TESTING", "email": "testing@gmail.com"}
     serializer = RegisterSerializer(data=data)
 
