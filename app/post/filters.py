@@ -9,8 +9,8 @@ class PostFilter(filters.FilterSet):
         ("published", "Published posts only (default)"),
         ("all", "All posts (drafts and published posts)"),
     ]
-    author = filters.CharFilter(method="filter_author")
-    status = filters.ChoiceFilter(method="filter_status", choices=STATUS_CHOICES)
+    author = filters.CharFilter(method="filter_author", label="Author")
+    status = filters.ChoiceFilter(method="filter_status", choices=STATUS_CHOICES, label="Status")
 
     class Meta:
         model = Post
