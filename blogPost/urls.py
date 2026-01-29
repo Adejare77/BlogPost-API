@@ -18,9 +18,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from app.core.middleware.monitoring.views import PrivateMetricsView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include("api.v1.urls", namespace="v1")),
     path("api/v2/", include("api.v2.urls", namespace="v2")),
+    path("metrics/", PrivateMetricsView.as_view()),
 ]
