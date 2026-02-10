@@ -1,14 +1,15 @@
 import logging
+import random
 import time
 import uuid
-import random
+
 from django.conf import settings
 
 logger = logging.getLogger("request_logger")
 
 
 class RequestResponseLoggingMiddleware:
-    SKIP_PATHS = ['/metrics/', '/health/']
+    SKIP_PATHS = ["/metrics/", "/health/"]
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -17,7 +18,7 @@ class RequestResponseLoggingMiddleware:
         if request.path in self.SKIP_PATHS:
             return self.get_response(request)
 
-        request_id = request.headers.get('X-request-ID') or str(uuid.uuid4())
+        request_id = request.headers.get("X-request-ID") or str(uuid.uuid4())
         request.request_id = request_id
 
         start = time.perf_counter()
@@ -26,7 +27,7 @@ class RequestResponseLoggingMiddleware:
         except Exception:
             logger.exception(
                 "Request failed",
-                extra=self._log_content(request, None, start, request_id)
+                extra=self._log_content(request, None, start, request_id),
             )
             raise
 
@@ -36,7 +37,7 @@ class RequestResponseLoggingMiddleware:
                 log_level,
                 f"{request.method} {request.path} completed with {response.status_code}",
                 extra=self._log_content(request, response, start, request_id),
-        )
+            )
 
         return response
 
@@ -44,11 +45,11 @@ class RequestResponseLoggingMiddleware:
         if response.status_code in [401, 403, 404, 429]:
             return logging.WARNING
 
-        if request.method in ['POST', 'PATCH', 'DELETE']:
+        if request.method in ["POST", "PATCH", "DELETE"]:
             return logging.INFO
 
-        # randomly select 10% of get requests
-        if settings.LOG_SAMPLING and random.random() > settings.LOG_SAMPLING_RATE:
+        # logging rate
+        if settings.LOG_SAMPLING and random.random() >= settings.LOG_SAMPLING_RATE:
             return None
 
         return logging.INFO
@@ -63,9 +64,13 @@ class RequestResponseLoggingMiddleware:
             "duration_ms": round(duration, 2),
             "user_id": getattr(request.user, "id", None),
             "ip": self._get_client_ip(request),
-            "user_agent": request.headers.get('User-Agent', "")[:100]
+            "user_agent": request.headers.get("User-Agent", "")[:100],
         }
 
     def _get_client_ip(self, request):
-        x_forwarded = request.headers.get('Forwarded-for')
-        return x_forwarded.split(",")[0].strip() if x_forwarded else request.META.get('REMOTE_ADDR')
+        x_forwarded = request.headers.get("Forwarded-for")
+        return (
+            x_forwarded.split(",")[0].strip()
+            if x_forwarded
+            else request.META.get("REMOTE_ADDR")
+        )

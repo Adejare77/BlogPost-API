@@ -1,6 +1,6 @@
-from prometheus_client import Counter, Histogram, Gauge
 import time
 
+from prometheus_client import Counter, Gauge, Histogram
 
 REQUEST_COUNT = Counter(
     "api_request_total",

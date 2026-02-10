@@ -1,7 +1,7 @@
-from django.http import HttpResponse, HttpResponseForbidden
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-from rest_framework.views import APIView
 from django.conf import settings
+from django.http import HttpResponse, HttpResponseForbidden
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from rest_framework.views import APIView
 
 
 class PrivateMetricsView(APIView):
