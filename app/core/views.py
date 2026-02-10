@@ -1,7 +1,8 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from django.db import connection
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 
 class HealthCheck(APIView):
     authentication_classes = []
@@ -13,9 +14,6 @@ class HealthCheck(APIView):
             return Response({"status": "OK"}, status=status.HTTP_200_OK)
         except Exception as err:
             return Response(
-                {
-                    "status": "error",
-                    "detail": str(err)
-                },
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
+                {"status": "error", "detail": str(err)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
