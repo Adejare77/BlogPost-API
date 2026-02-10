@@ -1,7 +1,6 @@
 scrape_configs:
   - job_name: "blog_api"
     metrics_path: /metrics/
-    authorization:
-      credentials: "this-isNotMeant%dosfie9hwj"
     static_configs:
       - targets: ["web:8000"]
+    bearer_token_file: /run/secrets/prometheus_scrape_token
