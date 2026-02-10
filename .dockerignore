@@ -1,4 +1,13 @@
-api/*
+api/
+secrets/
+.env*
+logs/
+*.log
+__pycache__/
+.gitignore
+*.pyc
+docker-compose*
+*.sh
 
 !api/v1
 !api/v2
