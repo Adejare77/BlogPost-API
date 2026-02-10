@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models import Count, Prefetch
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -15,6 +17,8 @@ from api.v2.comment.serializer import (
 from app.comment.models import Comment
 from app.core.permissions import IsAdminOrSelf, IsAuthenticated, IsOwner
 from app.post.models import Post
+
+logger = logging.getLogger("app")
 
 
 class CommentListCreateAPIView(ListCreateAPIView):
@@ -56,7 +60,16 @@ class CommentListCreateAPIView(ListCreateAPIView):
         except Post.DoesNotExist as err:
             raise NotFound("Post not found.") from err
 
-        serializer.save(post=post, author=self.request.user)
+        comment = serializer.save(post=post, author=self.request.user)
+
+        logger.info(
+            "Comment created",
+            extra={
+                "user_id": self.request.user.id,
+                "post_id": comment.id,
+                "request_id": self.request.headers.get("HTTP_X_REQUEST_ID"),
+            },
+        )
 
 
 class CommentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -97,6 +110,28 @@ class CommentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             )
             .filter(id=self.kwargs["comment_id"])
         )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "Comment created",
+            extra={
+                "user_id": self.request.user.id,
+                "post_id": instance.id,
+                "request_id": self.request.headers.get("HTTP_X_REQUEST_ID"),
+            },
+        )
+
+    def perform_destroy(self, instance):
+        logger.info(
+            "Comment deleted",
+            extra={
+                "user_id": self.request.user.id,
+                "post_id": instance.id,
+                "request_id": self.request.headers.get("HTTP_X_REQUEST_ID"),
+            },
+        )
+        super().perform_destroy(instance)
 
 
 class ReplyListCreateAPIView(ListCreateAPIView):
