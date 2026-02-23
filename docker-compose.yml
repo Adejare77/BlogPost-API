@@ -11,29 +11,48 @@ services:
       - 5433:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U docker_user -d test_db"]
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 3
       # start_period: 30s
 
+  redis:
+    image: redis:8.6.0
+    ports:
+      - 6379:6379
   web:
-    image: blogpost-api:v2.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    secrets:
+      - prometheus_scrape_token
+    volumes:
+      - .:/app
     env_file:
       - .env
     ports:
       - 3000:8000
     environment:
       - DATABASE_URL=postgres://docker_user:docker_pass@postgres_db:5432/test_db
-    command: sh -c "python3 manage.py migrate && gunicorn blogPost.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+      - PROMETHEUS_SCRAPE_TOKEN_FILE=/run/secrets/prometheus_scrape_token
+
+    command: ["./entrypoint.sh"]
     depends_on:
       postgres_db:
         condition: service_healthy
+      redis:
+        condition: service_started
+
     healthcheck:
-      test: ["executable", "arg"]
-      interval: 1m30s
-      timeout: 30s
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health/ || exit 1"]
+      interval: 15s
+      timeout: 10s
       retries: 5
-      start_period: 30s
 
 volumes:
   my_data:
+
+secrets:
+  prometheus_scrape_token:
+    file: ./secrets/prom_token
