@@ -1,5 +1,6 @@
 from rest_framework.throttling import SimpleRateThrottle
 
+
 class BaseUserOrIPThrottle(SimpleRateThrottle):
     def get_cache_key(self, request, view):
         if request.user and request.user.is_authenticated:
@@ -7,7 +8,4 @@ class BaseUserOrIPThrottle(SimpleRateThrottle):
         else:
             ident = self.get_ident(request=request)
 
-        return self.cache_format % {
-            "scope": self.scope,
-            "ident": ident
-        }
+        return self.cache_format % {"scope": self.scope, "ident": ident}
