@@ -231,7 +231,7 @@ class CommentDetailViewTests(APITestCase):
         """Test updating my comment with authentication"""
         url = reverse("v1:comment-detail", args=[self.comment1.id])
         data = {"content": "Wow, I'm very famous, thanks for the likes"}
-        request = self.factory.patch(path=url, data=data)
+        request = self.factory.patch(path=url, data=data, format="json")
         force_authenticate(request=request, user=self.user2)
 
         response = views.post_comment_detail(request, self.comment1.id)
@@ -243,7 +243,7 @@ class CommentDetailViewTests(APITestCase):
         """Test updating other's' comment with authentication"""
         url = reverse("v1:comment-detail", args=[self.comment2.id])
         data = {"content": "This isn't meant to work"}
-        request = self.factory.patch(path=url, data=data)
+        request = self.factory.patch(path=url, data=data, format="json")
         force_authenticate(request=request, user=self.user1)
 
         response = views.post_comment_detail(request, self.comment2.id)
@@ -356,7 +356,7 @@ class ReplyListViewTests(APITestCase):
         """Test creating a empty content reply with authentication"""
         url = reverse("v1:replies", args=[self.comment2.id])
         data = {"content": ""}
-        request = self.factory.post(path=url, data=data)
+        request = self.factory.post(path=url, data=data, format="json")
         force_authenticate(request=request, user=self.user1)
 
         response = views.comment_replies(request, self.comment2.id)
@@ -368,7 +368,7 @@ class ReplyListViewTests(APITestCase):
         """Test creating reply with authentication and missing content"""
         url = reverse("v1:replies", args=[self.comment2.id])
         data = {}
-        request = self.factory.post(path=url, data=data)
+        request = self.factory.post(path=url, data=data, format="json")
         force_authenticate(request=request, user=self.user1)
 
         response = views.comment_replies(request, self.comment2.id)
