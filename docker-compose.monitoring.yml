@@ -1,26 +1,23 @@
 services:
   prometheus:
+    image: prom/prometheus:v2.49.1
     depends_on:
       web:
         condition: service_healthy
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - 9000:9090
-    environment:
-      - PROMETHEUS_TOKEN=${PROMETHEUS_TOKEN}
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    secrets:
+      - prometheus_scrape_token
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
-      interval: 1m30s
-      timeout: 10s
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 5s
       retries: 3
-      # start_period: 30s
 
   grafana:
-    image: grafa/grafana:12.3.1
+    image: grafana/grafana:12.3.1
     ports:
       - 3001:3000
     depends_on:
