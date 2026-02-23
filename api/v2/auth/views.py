@@ -10,13 +10,16 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api.v2.auth.serializer import CustomTokenObtainPairSerializer, RegisterSerializer
 from app.core.permissions import IsAuthenticated
+from app.core.security.throttling.auth import LoginThrottle, RegisterThrottle
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    throttle_classes = [LoginThrottle]
     serializer_class = CustomTokenObtainPairSerializer
 
 
 class CreateUserAPIView(CreateAPIView):
+    throttle_classes = [RegisterThrottle]
     serializer_class = RegisterSerializer
 
 
