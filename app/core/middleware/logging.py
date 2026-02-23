@@ -68,7 +68,7 @@ class RequestResponseLoggingMiddleware:
         }
 
     def _get_client_ip(self, request):
-        x_forwarded = request.headers.get("Forwarded-for")
+        x_forwarded = request.headers.get("X-Forwarded-for")
         return (
             x_forwarded.split(",")[0].strip()
             if x_forwarded
