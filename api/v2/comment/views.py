@@ -40,6 +40,7 @@ class CommentListCreateAPIView(ListCreateAPIView):
             raise NotFound("Post not found.")
         return (
             Comment.objects.filter(post=post, parent__isnull=True)
+            .select_related("author")
             .annotate(
                 like_count=Count("likes", distinct=True),
                 reply_count=Count("replies", distinct=True),
@@ -160,6 +161,7 @@ class ReplyListCreateAPIView(ListCreateAPIView):
             raise NotFound("Comment not found.")
         return (
             Comment.objects.filter(parent=comment)
+            .select_related("author")
             .annotate(like_count=Count("likes", distinct=True))
             .order_by("-like_count", "-created_at")
         )
@@ -194,6 +196,8 @@ class ReplyRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         return [IsAuthenticated(), IsOwner()]
 
     def get_queryset(self):
-        return Comment.objects.annotate(
-            like_count=Count("likes", distinct=True)
-        ).filter(id=self.kwargs["reply_id"])
+        return (
+            Comment.objects.annotate(like_count=Count("likes", distinct=True))
+            .prefetch_related("author")
+            .filter(id=self.kwargs["reply_id"])
+        )

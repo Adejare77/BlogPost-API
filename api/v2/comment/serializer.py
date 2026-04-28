@@ -4,12 +4,22 @@ from django.utils.text import Truncator
 from rest_framework import serializers
 
 from app.comment.models import Comment
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "full_name"]
 
 
 class CommentListSerializer(serializers.ModelSerializer):
     excerpt = serializers.SerializerMethodField()
     reply_count = serializers.IntegerField(read_only=True)
     likes = serializers.IntegerField(read_only=True, source="like_count")
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -39,6 +49,8 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         }
     )
 
+    author = UserSerializer(read_only=True)
+
     class Meta:
         model = Comment
         fields = ["id", "author", "post_id", "content", "created_at"]
@@ -51,6 +63,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 class ReplyListSerializer(serializers.ModelSerializer):
     excerpt = serializers.SerializerMethodField()
     likes = serializers.IntegerField(read_only=True, source="like_count")
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -71,6 +84,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
     content = serializers.CharField(
         error_messages={"blank": "content field cannot be empty"}
     )
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -109,6 +123,7 @@ class ReplyCreateSerializer(serializers.ModelSerializer):
             "required": "content field is required",
         }
     )
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -131,6 +146,7 @@ class ReplyDetailSerializer(serializers.ModelSerializer):
     content = serializers.CharField(
         error_messages={"blank": "content field cannot be empty"}
     )
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
