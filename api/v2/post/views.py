@@ -38,11 +38,15 @@ class PostListCreateAPIView(ListCreateAPIView):
     filterset_class = PostFilter
 
     def get_queryset(self):
-        base_qs = Post.objects.order_by("-created_at").annotate(
-            like_count=Count("likes", distinct=True),
-            comment_count=Count(
-                "comments", filter=Q(comments__parent__isnull=True), distinct=True
-            ),
+        base_qs = (
+            Post.objects.order_by("-created_at")
+            .select_related("author")
+            .annotate(
+                like_count=Count("likes", distinct=True),
+                comment_count=Count(
+                    "comments", filter=Q(comments__parent__isnull=True), distinct=True
+                ),
+            )
         )
 
         user = self.request.user

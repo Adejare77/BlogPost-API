@@ -1,5 +1,6 @@
 from typing import Dict
 
+from django.contrib.auth import get_user_model
 from django.utils.text import Truncator
 from rest_framework import serializers
 
@@ -7,10 +8,21 @@ from app.comment.models import Comment
 from app.post.models import Post
 
 
+User = get_user_model()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "full_name"]
+
+
 class PostListSerializer(serializers.ModelSerializer):
     comment_count = serializers.IntegerField(read_only=True)
     likes = serializers.IntegerField(read_only=True, source="like_count")
     excerpt = serializers.SerializerMethodField()
+
+    author = UserSerializer(read_only=True)
 
     def get_excerpt(self, obj):
         words = obj.content.split()
@@ -45,6 +57,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
             "required": "content field is required",
         }
     )
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Post
@@ -73,6 +86,7 @@ class TopCommentListSerializer(serializers.ModelSerializer):
     excerpt = serializers.SerializerMethodField()
     likes = serializers.IntegerField(read_only=True, source="like_count")
     reply_count = serializers.IntegerField(read_only=True)
+    author = UserSerializer(read_only=True)
 
     def get_excerpt(self, obj):
         if not obj.content:
@@ -104,6 +118,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         error_messages={"blank": "is_published field cannot be empty"},
         write_only=True,
     )
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Post

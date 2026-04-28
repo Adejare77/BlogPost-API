@@ -167,7 +167,7 @@ def test_get_posts_by_author_when_unauthenticated_returns_200(api_rf, users, pos
     assert response.data["results"]  # Not empty
 
     for items in response.data["results"]:
-        assert items["author"] == user.id
+        assert items["author"]["id"] == str(user.id)
 
 
 def test_get_posts_by_author_as_user_returns_200(api_rf, users, posts):
@@ -183,7 +183,7 @@ def test_get_posts_by_author_as_user_returns_200(api_rf, users, posts):
     assert response.data["results"]
 
     for items in response.data["results"]:
-        assert items["author"] == user.id
+        assert items["author"]["id"] == str(user.id)
 
 
 def test_get_posts_by_author_as_admin_returns_200(api_rf, users, posts):
@@ -200,7 +200,7 @@ def test_get_posts_by_author_as_admin_returns_200(api_rf, users, posts):
     assert response.data["results"]
 
     for items in response.data["results"]:
-        assert items["author"] == user.id
+        assert items["author"]["id"] == str(user.id)
 
 
 def test_no_n_plus_one_queries(posts, api_rf, django_assert_max_num_queries):
