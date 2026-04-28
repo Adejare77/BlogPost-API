@@ -42,7 +42,7 @@ class RequestResponseLoggingMiddleware:
         return response
 
     def _get_log_level(self, request, response):
-        if response.status_code in [401, 403, 404, 429]:
+        if response.status_code in [400, 401, 403, 404, 429]:
             return logging.WARNING
 
         if request.method in ["POST", "PATCH", "DELETE"]:
