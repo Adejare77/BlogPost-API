@@ -1,7 +1,10 @@
 from django.db.models import Q
 from django.urls import reverse
 from rest_framework import status
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from rest_framework_simplejwt.token_blacklist.models import (
+    BlacklistedToken,
+    OutstandingToken,
+)
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.v2.tests.constants import FORBIDDEN, UNAUTHORIZED
@@ -103,7 +106,7 @@ class TestPostListCreateAPIView:
         assert response.data["results"]
 
         for data in response.data["results"]:
-            assert data["author"] == users[0].id
+            assert data["author"]["id"] == str(users[0].id)
 
     def test_get_posts_n_drafts_as_user_returns_200(
         self, published_posts, draft_posts, users, user_client
@@ -115,7 +118,7 @@ class TestPostListCreateAPIView:
         assert response.data["results"]
 
         for data in response.data["results"]:
-            assert data["author"] == users[0].id
+            assert data["author"]["id"] == str(users[0].id)
 
     def test_get_post_by_author_as_user_returns_200(self, published_posts, user_client):
         author_full_name = published_posts[0].author.full_name
@@ -153,7 +156,7 @@ class TestPostListCreateAPIView:
         assert response.data["results"]
 
         for data in response.data["results"]:
-            assert data["author"] == users[0].id
+            assert data["author"]["id"] == str(users[0].id)
 
     def test_get_my_drafts_as_user_returns_200(self, draft_posts, users, user_client):
         url = reverse("v2:posts") + "?status=draft&author=me"
@@ -163,7 +166,7 @@ class TestPostListCreateAPIView:
         assert response.data["results"]
 
         for data in response.data["results"]:
-            assert data["author"] == users[0].id
+            assert data["author"]["id"] == str(users[0].id)
 
     def test_get_my_posts_n_drafts_as_user_returns_200(
         self, published_posts, draft_posts, users, user_client
@@ -175,7 +178,7 @@ class TestPostListCreateAPIView:
         assert response.data["results"]
 
         for data in response.data["results"]:
-            assert data["author"] == users[0].id
+            assert data["author"]["id"] == str(users[0].id)
 
     def test_get_posts_by_admin_returns_200(self, published_posts, admin_client):
         url = reverse("v2:posts")
@@ -781,14 +784,14 @@ class TestUserListAPIView:
 
 class TestUserRetrieveAPIView:
     def test_retrieve_user_profile_when_authenticated_returns_401(self, users, api_cl):
-        url = reverse("v2:user-profile", args=[users[0].id])
+        url = reverse("v2:user-profile", args=[str(users[0].id)])
         response = api_cl.get(path=url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.data["detail"] == UNAUTHORIZED
 
     def test_retrieve_user_profile_as_user_returns_200(self, users, user_client):
-        url = reverse("v2:user-profile", args=[users[0].id])
+        url = reverse("v2:user-profile", args=[str(users[0].id)])
         response = user_client.get(path=url)
 
         assert response.status_code == status.HTTP_200_OK
@@ -802,7 +805,7 @@ class TestUserRetrieveAPIView:
         assert response.data["detail"] == FORBIDDEN
 
     def test_retrieve_user_profile_as_admin_returns_200(self, users, admin_client):
-        url = reverse("v2:user-profile", args=[users[0].id])
+        url = reverse("v2:user-profile", args=[str(users[0].id)])
         response = admin_client.get(path=url)
 
         assert response.status_code == status.HTTP_200_OK
@@ -811,14 +814,14 @@ class TestUserRetrieveAPIView:
 
 class TestDisableUserAPIView:
     def test_disable_user_when_unauthenticated_returns_401(self, users, api_cl):
-        url = reverse("v2:disable-account", args=[users[0].id])
+        url = reverse("v2:disable-account", args=[str(users[0].id)])
         response = api_cl.post(path=url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.data["detail"] == UNAUTHORIZED
 
     def test_disable_user_as_user_returns_403(self, users, user_client):
-        url = reverse("v2:disable-account", args=[users[0].id])
+        url = reverse("v2:disable-account", args=[str(users[0].id)])
         response = user_client.post(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -832,7 +835,7 @@ class TestDisableUserAPIView:
         assert response.data["detail"] == FORBIDDEN
 
     def test_disable_user_as_admin_returns_204(self, users, admin_client):
-        url = reverse("v2:disable-account", args=[users[0].id])
+        url = reverse("v2:disable-account", args=[str(users[0].id)])
         response = admin_client.post(path=url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -840,14 +843,14 @@ class TestDisableUserAPIView:
 
 class TestEnableUserAPIView:
     def test_enable_user_when_unauthenticated_returns_401(self, users, api_cl):
-        url = reverse("v2:enable-account", args=[users[0].id])
+        url = reverse("v2:enable-account", args=[str(users[0].id)])
         response = api_cl.post(path=url)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.data["detail"] == UNAUTHORIZED
 
     def test_enable_user_as_user_returns_403(self, users, user_client):
-        url = reverse("v2:enable-account", args=[users[0].id])
+        url = reverse("v2:enable-account", args=[str(users[0].id)])
         response = user_client.post(path=url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -861,7 +864,7 @@ class TestEnableUserAPIView:
         assert response.data["detail"] == FORBIDDEN
 
     def test_enable_user_as_admin_returns_204(self, users, admin_client):
-        url = reverse("v2:enable-account", args=[users[0].id])
+        url = reverse("v2:enable-account", args=[str(users[0].id)])
         response = admin_client.post(path=url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -884,20 +887,45 @@ class TestLogoutAPIView:
     def test_logout_blacklist_refresh_token(self, api_cl, users):
         user = users[3]
 
-        refresh = RefreshToken.for_user(user)
-        access_token = refresh.access_token
-        api_cl.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
-
-        url = reverse("v2:logout")
-        response = api_cl.post(
-            path=url, data={"refresh_token": str(refresh)}, format="json"
+        login_url = reverse("v2:login")
+        login_resp = api_cl.post(
+            path=login_url,
+            data={"email": user.email, "password": "testPassword"},
+            format="json",
         )
 
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert BlacklistedToken.objects.filter(token__jti=refresh["jti"]).exists()
+        assert login_resp.status_code == status.HTTP_200_OK
+        assert "refresh_token" in login_resp.cookies
 
-        assert "access_token" in response.cookies
-        assert response.cookies["access_token"]["max-age"] == 0
+        api_cl.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {login_resp.data["access_token"]}"
+        )
+
+        refresh_token = api_cl.cookies.get("refresh_token").value
+
+        url = reverse("v2:logout")
+        response = api_cl.post(path=url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        token = OutstandingToken.objects.get(token=refresh_token)
+
+        assert BlacklistedToken.objects.filter(token=token).exists()
 
         assert "refresh_token" in response.cookies
         assert response.cookies["refresh_token"]["max-age"] == 0
+
+
+class TestLoginAPIView:
+    def test_login_create_refresh_token(self, api_cl, users):
+        user = users[0]
+        url = reverse("v2:login")
+        response = api_cl.post(
+            path=url,
+            data={"email": user.email, "password": "testPassword"},
+            format="json",
+        )
+
+        assert "refresh_token" in response.cookies
+        assert response.cookies["refresh_token"]["max-age"] > 0
+        assert "access_token" in response.data
