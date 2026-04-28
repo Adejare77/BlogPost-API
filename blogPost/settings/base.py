@@ -14,7 +14,7 @@ env = environ.Env(
     SECRET_KEY=(str, environ.Env.NOTSET),
     ALLOWED_HOSTS=(list, ["localhost"]),
     LOG_SAMPLING_RATE=(float, 0.1),
-    PROMETHEUS_TOKEN=(str, "")
+    PROMETHEUS_TOKEN=(str, ""),
 )
 
 # read the .env file
@@ -33,6 +33,7 @@ LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 PROMETHEUS_SCRAPE_TOKEN = env("PROMETHEUS_TOKEN")
 PROMETHEUS_TOKEN_FILE = "/run/secrets/prometheus_scrape_token"
+TESTING = env("TESTING")
 
 # retrieve prometheus token
 try:
@@ -60,6 +61,7 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_spectacular",
     "rest_framework",
+    "corsheaders",
     "app.core",
     "app.user",
     "app.post",
@@ -70,6 +72,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "app.core.middleware.monitoring.middleware.PrometheusMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -81,7 +84,29 @@ MIDDLEWARE = [
     "app.core.middleware.logging.RequestResponseLoggingMiddleware",
 ]
 
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False
+
 ROOT_URLCONF = "blogPost.urls"
+
+if DEBUG:
+    DEFAULT_THROTTLE_RATES = {
+        "anon": "100000/min",
+        "user": "100000/min",
+        "auth_login": "100000/min",
+        "auth_register": "100000/min",
+        "auth_password_reset": "100000/min",
+    }
+else:
+    DEFAULT_THROTTLE_RATES = {
+        "anon": "60/min",
+        "user": "120/min",
+        "auth_login": "5/min",
+        "auth_register": "3/min",
+        "auth_password_reset": "2/min",
+    }
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -102,7 +127,13 @@ REST_FRAMEWORK = {
             "rest_framework.renderers.BrowsableAPIRenderer",
         ]
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "app.core.security.throttling.general.UserThrottling",
+        "app.core.security.throttling.general.AnonThrottling",
+    ],
+    "DEFAULT_THROTTLE_RATES": DEFAULT_THROTTLE_RATES,
 }
+
 
 TEMPLATES = [
     {
@@ -129,6 +160,15 @@ if env("TESTING"):
     PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 else:
     DATABASES = {"default": env.db()}  # reads all in the .env
+
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": f"redis://{"localhost" if TESTING else "redis"}:6379/1",
+#         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -236,6 +276,7 @@ LOGGING = {
             "class": "logging.FileHandler",
             "formatter": "json",
             "filename": LOG_DIR / "django.log",
+            "level": "ERROR",
         },
         "request_handler": {
             "class": "logging.FileHandler",
