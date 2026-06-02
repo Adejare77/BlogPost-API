@@ -4,3 +4,4 @@ scrape_configs:
     static_configs:
       - targets: ["web:8000"]
     bearer_token_file: /run/secrets/prometheus_scrape_token
+    scrape_interval: 15s
