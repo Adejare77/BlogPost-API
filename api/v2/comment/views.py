@@ -18,7 +18,7 @@ from app.comment.models import Comment
 from app.core.permissions import IsAdminOrSelf, IsAuthenticated, IsOwner
 from app.post.models import Post
 
-logger = logging.getLogger("app")
+logger = logging.getLogger(__name__)
 
 
 class CommentListCreateAPIView(ListCreateAPIView):
@@ -64,7 +64,7 @@ class CommentListCreateAPIView(ListCreateAPIView):
         comment = serializer.save(post=post, author=self.request.user)
 
         logger.info(
-            "Comment created",
+            "Comment created successfully",
             extra={
                 "user_id": self.request.user.id,
                 "post_id": comment.id,
@@ -115,7 +115,7 @@ class CommentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         instance = serializer.save()
         logger.info(
-            "Comment created",
+            "Comment updated successfully",
             extra={
                 "user_id": self.request.user.id,
                 "post_id": instance.id,
@@ -125,7 +125,7 @@ class CommentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
         logger.info(
-            "Comment deleted",
+            "Comment deleted successfully",
             extra={
                 "user_id": self.request.user.id,
                 "post_id": instance.id,
