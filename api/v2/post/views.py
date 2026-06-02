@@ -25,7 +25,7 @@ from app.post.filters import PostFilter
 from app.post.models import Post
 from app.post.service import get_accessible_posts_queryset
 
-logger = logging.getLogger("app")
+logger = logging.getLogger(__name__)
 
 
 class PostListCreateAPIView(ListCreateAPIView):
@@ -67,17 +67,15 @@ class PostListCreateAPIView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         post = serializer.save(author=self.request.user)
-
-        if post:
-            logger.info(
-                "Post created" if post.is_published else "Draft created",
-                extra={
-                    "user_id": self.request.user.id,
-                    "post_id": post.id,
-                    "title": post.title,
-                    "request_id": self.request.headers.get("X-requested-ID"),
-                },
-            )
+        logger.info(
+            "Post created successfully" if post.is_published else "Draft created successfully",
+            extra={
+                "user_id": self.request.user.id,
+                "post_id": post.id,
+                "title": post.title,
+                "request_id": self.request.request_id,
+            },
+        )
 
 
 class PostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -119,22 +117,22 @@ class PostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         instance = serializer.save()
         logger.info(
-            "Post updated" if instance.is_published else "Draft updated",
+            "Post updated successfully" if instance.is_published else "Draft updated successfully",
             extra={
                 "user_id": self.request.user.id,
                 "post_id": instance.id,
                 "title": instance.title,
-                "request_id": self.request.headers.get("X-requested-ID"),
+                "request_id": self.request.headers.request_id,
             },
         )
 
     def perform_destroy(self, instance):
         logger.info(
-            "Post deleted" if instance.is_published else "Draft deleted",
+            "Post deleted successfully" if instance.is_published else "Draft deleted successfully",
             extra={
                 "user_id": self.request.user.id,
                 "post_id": instance.id,
-                "request_id": self.request.headers.get("X-requested-ID"),
+                "request_id": self.request.request_id,
             },
         )
         super().perform_destroy(instance)
