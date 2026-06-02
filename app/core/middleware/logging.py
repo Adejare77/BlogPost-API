@@ -27,37 +27,45 @@ class RequestResponseLoggingMiddleware:
         except Exception:
             logger.exception(
                 "Request failed",
-                extra=self._log_content(request, None, start, request_id),
+                extra=self._log_content(request, None, start),
             )
             raise
 
-        log_level = self._get_log_level(request, response)
-        if log_level:
+        log_level, status = self._get_log_level(request, response)
+
+        if status:
+            if status < 400:
+                message_success = "completed with"
+            elif status < 500:
+                message_success = "returned client error"
+            else:
+                message_success = "failed with server error"
+
             logger.log(
                 log_level,
-                f"{request.method} {request.path} completed with {response.status_code}",
-                extra=self._log_content(request, response, start, request_id),
+                f"{request.method} {request.path} {message_success} {response.status_code}",
+                extra=self._log_content(request, response, start),
             )
 
         return response
 
     def _get_log_level(self, request, response):
         if response.status_code in [400, 401, 403, 404, 429]:
-            return logging.WARNING
+            return logging.WARNING, response.status_code
 
         if request.method in ["POST", "PATCH", "DELETE"]:
-            return logging.INFO
+            return logging.INFO, response.status_code
 
         # logging rate
         if settings.LOG_SAMPLING and random.random() >= settings.LOG_SAMPLING_RATE:
-            return None
+            return None, None
 
-        return logging.INFO
+        return logging.INFO, response.status_code
 
-    def _log_content(self, request, response, start, request_id):
+    def _log_content(self, request, response, start):
         duration = (time.perf_counter() - start) * 1000
         return {
-            "request_id": request_id,
+            "request_id": request.request_id,
             "method": request.method,
             "path": request.path,
             "status_code": getattr(response, "status_code", 500),
