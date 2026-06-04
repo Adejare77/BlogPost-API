@@ -122,7 +122,7 @@ class PostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 "user_id": self.request.user.id,
                 "post_id": instance.id,
                 "title": instance.title,
-                "request_id": self.request.headers.request_id,
+                "request_id": self.request.request_id,
             },
         )
 
