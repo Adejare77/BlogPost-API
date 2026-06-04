@@ -160,6 +160,49 @@ def likes(db, users, posts, comments):
     )
 
 
+# @pytest.fixture
+# def api_rf():
+#     return APIRequestFactory()
+
+
+import uuid
+import pytest
+from rest_framework.test import APIRequestFactory
+
 @pytest.fixture
 def api_rf():
-    return APIRequestFactory()
+    factory = APIRequestFactory()
+
+    # 1. Save the original factory methods
+    original_post = factory.post
+    original_get = factory.get
+    original_patch = factory.patch
+    original_delete = factory.delete
+
+    def post_with_id(*args, **kwargs):
+        request = original_post(*args, **kwargs)
+        request.request_id = kwargs.pop('request_id', str(uuid.uuid4()))
+        return request
+
+    def get_with_id(*args, **kwargs):
+        request = original_get(*args, **kwargs)
+        request.request_id = kwargs.pop('request_id', str(uuid.uuid4()))
+        return request
+
+    def delete_with_id(*args, **kwargs):
+        request = original_delete(*args, **kwargs)
+        request.request_id = kwargs.pop('request_id', str(uuid.uuid4()))
+        return request
+
+    def patch_with_id(*args, **kwargs):
+        request = original_patch(*args, **kwargs)
+        request.request_id = kwargs.pop('request_id', str(uuid.uuid4()))
+        return request
+
+    # 3. Override the factory's methods with our wrappers
+    factory.post = post_with_id
+    factory.get = get_with_id
+    factory.patch = patch_with_id
+    factory.delete = delete_with_id
+
+    return factory
