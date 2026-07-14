@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
@@ -16,10 +18,9 @@ from api.v2.auth.serializer import (
 )
 from app.core.permissions import IsAuthenticated
 from app.core.security.throttling.auth import LoginThrottle, RegisterThrottle
-from django.conf import settings
-import logging
 
 logger = logging.getLogger(__name__)
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     throttle_classes = [LoginThrottle]
@@ -51,7 +52,7 @@ class CreateUserAPIView(CreateAPIView):
 
         logger.info(
             "User registered successfully",
-            extra={"user_id": user.id, "email": user.email}
+            extra={"user_id": user.id, "email": user.email},
         )
 
 
