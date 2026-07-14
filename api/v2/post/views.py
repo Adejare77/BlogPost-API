@@ -1,6 +1,7 @@
 import logging
 
-from django.db.models import Count, Prefetch, Q
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import BooleanField, Count, Exists, OuterRef, Prefetch, Q, Value
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
@@ -21,6 +22,7 @@ from app.core.permissions import (
     IsAuthenticated,
     IsOwner,
 )
+from app.like.models import Like
 from app.post.filters import PostFilter
 from app.post.models import Post
 from app.post.service import get_accessible_posts_queryset
@@ -38,15 +40,27 @@ class PostListCreateAPIView(ListCreateAPIView):
     filterset_class = PostFilter
 
     def get_queryset(self):
+        annotations = {
+            "like_count": Count("likes", distinct=True),
+            "comment_count": Count(
+                "comments", filter=Q(comments__parent__isnull=True), distinct=True
+            ),
+        }
+        if self.request.user.is_authenticated:
+            content_type = ContentType.objects.get_for_model(Post)
+            annotations["liked"] = Exists(
+                Like.objects.filter(
+                    user=self.request.user,
+                    content_type=content_type,
+                    object_id=OuterRef("id"),
+                )
+            )
+        else:
+            annotations["liked"] = Value(False, output_field=BooleanField())
         base_qs = (
             Post.objects.order_by("-created_at")
             .select_related("author")
-            .annotate(
-                like_count=Count("likes", distinct=True),
-                comment_count=Count(
-                    "comments", filter=Q(comments__parent__isnull=True), distinct=True
-                ),
-            )
+            .annotate(**annotations)
         )
 
         user = self.request.user
@@ -68,7 +82,11 @@ class PostListCreateAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         post = serializer.save(author=self.request.user)
         logger.info(
-            "Post created successfully" if post.is_published else "Draft created successfully",
+            (
+                "Post created successfully"
+                if post.is_published
+                else "Draft created successfully"
+            ),
             extra={
                 "user_id": self.request.user.id,
                 "post_id": post.id,
@@ -117,7 +135,11 @@ class PostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         instance = serializer.save()
         logger.info(
-            "Post updated successfully" if instance.is_published else "Draft updated successfully",
+            (
+                "Post updated successfully"
+                if instance.is_published
+                else "Draft updated successfully"
+            ),
             extra={
                 "user_id": self.request.user.id,
                 "post_id": instance.id,
@@ -128,7 +150,11 @@ class PostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
         logger.info(
-            "Post deleted successfully" if instance.is_published else "Draft deleted successfully",
+            (
+                "Post deleted successfully"
+                if instance.is_published
+                else "Draft deleted successfully"
+            ),
             extra={
                 "user_id": self.request.user.id,
                 "post_id": instance.id,
