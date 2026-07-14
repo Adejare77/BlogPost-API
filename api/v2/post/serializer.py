@@ -7,7 +7,6 @@ from rest_framework import serializers
 from app.comment.models import Comment
 from app.post.models import Post
 
-
 User = get_user_model()
 
 
@@ -21,6 +20,7 @@ class PostListSerializer(serializers.ModelSerializer):
     comment_count = serializers.IntegerField(read_only=True)
     likes = serializers.IntegerField(read_only=True, source="like_count")
     excerpt = serializers.SerializerMethodField()
+    liked = serializers.BooleanField(read_only=True)
 
     author = UserSerializer(read_only=True)
 
@@ -38,7 +38,9 @@ class PostListSerializer(serializers.ModelSerializer):
             "title",
             "excerpt",
             "likes",
+            "liked",
             "comment_count",
+            "is_published",
             "created_at",
         ]
         read_only_fields = fields
@@ -116,7 +118,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         required=False,
         default=False,
         error_messages={"blank": "is_published field cannot be empty"},
-        write_only=True,
+        write_only=False,
     )
     author = UserSerializer(read_only=True)
 
