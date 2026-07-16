@@ -1,6 +1,7 @@
 import logging
 
-from django.db.models import Count, Prefetch
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import BooleanField, Count, Exists, OuterRef, Prefetch, Value
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -16,6 +17,7 @@ from api.v2.comment.serializer import (
 )
 from app.comment.models import Comment
 from app.core.permissions import IsAdminOrSelf, IsAuthenticated, IsOwner
+from app.like.models import Like
 from app.post.models import Post
 
 logger = logging.getLogger(__name__)
@@ -35,16 +37,30 @@ class CommentListCreateAPIView(ListCreateAPIView):
         return [IsAuthenticated()]
 
     def get_queryset(self):
-        post = Post.objects.filter(id=self.kwargs["post_id"]).first()
-        if not post:
+        if not Post.objects.filter(id=self.kwargs["post_id"]).exists():
             raise NotFound("Post not found.")
-        return (
-            Comment.objects.filter(post=post, parent__isnull=True)
-            .select_related("author")
-            .annotate(
-                like_count=Count("likes", distinct=True),
-                reply_count=Count("replies", distinct=True),
+
+        annotations = {
+            "like_count": Count("likes", distinct=True),
+            "reply_count": Count("replies", distinct=True),
+        }
+
+        if self.request.user.is_authenticated:
+            content_type = ContentType.objects.get_for_model(Comment)
+            annotations["liked"] = Exists(
+                Like.objects.filter(
+                    user=self.request.user,
+                    object_id=OuterRef("id"),
+                    content_type=content_type,
+                )
             )
+        else:
+            annotations["liked"] = Value(False, output_field=BooleanField())
+
+        return (
+            Comment.objects.filter(post_id=self.kwargs["post_id"], parent__isnull=True)
+            .select_related("author")
+            .annotate(**annotations)
             .order_by("-like_count", "-reply_count", "-created_at")
         )
 

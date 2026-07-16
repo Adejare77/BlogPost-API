@@ -1,10 +1,10 @@
 from typing import Dict
 
+from django.contrib.auth import get_user_model
 from django.utils.text import Truncator
 from rest_framework import serializers
 
 from app.comment.models import Comment
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -20,6 +20,7 @@ class CommentListSerializer(serializers.ModelSerializer):
     reply_count = serializers.IntegerField(read_only=True)
     likes = serializers.IntegerField(read_only=True, source="like_count")
     author = UserSerializer(read_only=True)
+    liked = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Comment
@@ -30,6 +31,7 @@ class CommentListSerializer(serializers.ModelSerializer):
             "excerpt",
             "reply_count",
             "likes",
+            "liked",
             "created_at",
         ]
         read_only_fields = fields
