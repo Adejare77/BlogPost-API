@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -9,8 +10,8 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env(
-    DEBUG=(bool, False),
-    TESTING=(bool, False),
+    DEBUG=(bool, False) or "pytest" in sys.modules,
+    TESTING=(bool, False) or "pytest" in sys.modules,
     SECRET_KEY=(str, environ.Env.NOTSET),
     ALLOWED_HOSTS=(list, ["localhost"]),
     LOG_SAMPLING_RATE=(float, 0.1),
@@ -197,11 +198,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Africa/Lagos"
 
-USE_I18N = True
+USE_I18N = False
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -260,6 +261,35 @@ LOGGING = {
     },
     "handlers": {
         "console": {"class": "logging.StreamHandler", "formatter": "standard"},
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "api": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "request_logger": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+    "root": {"handlers": ["console"], "level": "INFO"},
+}
+
+if not (DEBUG or TESTING):
+    LOGGING["handlers"] = {
+        "console": {"class": "logging.StreamHandler", "formatter": "standard"},
         "app_handler": {
             "class": "logging.FileHandler",
             "formatter": "json",
@@ -285,28 +315,11 @@ LOGGING = {
             "level": "INFO",
             "filters": ["only_info"],
         },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console", "django_handler"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": ["console", "error_handler"],
-            "level": "WARNING",
-            "propagate": False,
-        },
-        "app": {
-            "handlers": ["console", "app_handler"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "request_logger": {
-            "handlers": ["console", "request_handler", "error_handler"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-    "root": {"handlers": ["console"], "level": "INFO"},
-}
+    }
+
+    LOGGING["loggers"]["django"]["handlers"].append("django_handler")
+    LOGGING["loggers"]["django.request"]["handlers"].append("error_handler")
+    LOGGING["loggers"]["api"]["handlers"].append("app_handler")
+    LOGGING["loggers"]["request_logger"]["handlers"].extend(
+        ["error_handler", "request_handler"]
+    )
